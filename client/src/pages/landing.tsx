@@ -282,12 +282,12 @@ export default function Landing() {
                  className="rounded-xl shadow-lg w-full h-auto object-cover"/>
             <img src="/api/assets/work7.jpg" alt="Работа 8"
                  className="rounded-xl shadow-lg w-full h-auto object-cover"/>
-
+            <img src="/api/assets/work10.jpg" alt="Работа 9"
+                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
             {/* Добавь больше, если нужно */}
           </div>
         </div>
       </section>
-
 
       {/* Certificates Section */}
       <section id="certificates" className="py-20 bg-gradient-to-br from-white to-blush-pink">
@@ -306,9 +306,9 @@ export default function Landing() {
                  className="rounded-xl shadow-lg w-full h-auto object-cover"/>
             <img src="/api/assets/cert2.jpg" alt="Сертификат 2"
                  className="rounded-xl shadow-lg w-full h-auto object-cover"/>
-            <img src="/api/assets/cert3.jpg" alt="Сертификат 3"
-                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
             <img src="/api/assets/cert4.jpg" alt="Сертификат 4"
+                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
+            <img src="/api/assets/cert3.jpg" alt="Сертификат 3"
                  className="rounded-xl shadow-lg w-full h-auto object-cover"/>
             <img src="/api/assets/cert5.jpg" alt="Сертификат 5"
                  className="rounded-xl shadow-lg w-full h-auto object-cover"/>
