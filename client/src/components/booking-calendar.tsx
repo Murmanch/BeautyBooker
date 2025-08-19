@@ -25,8 +25,10 @@ export default function BookingCalendar({ services }: BookingCalendarProps) {
   const [selectedTime, setSelectedTime] = useState<string>("");
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
+  const dateStr = selectedDate ? selectedDate.toISOString().split('T')[0] : undefined;
+
   const { data: availableSlots } = useQuery<string[]>({
-    queryKey: ["/api/available-slots", { date: selectedDate?.toISOString().split('T')[0], serviceId: selectedService }],
+    queryKey: ["/api/available-slots", { date: dateStr, serviceId: selectedService }],
     enabled: !!selectedDate && !!selectedService,
     retry: false,
   });
