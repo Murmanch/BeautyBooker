@@ -18,10 +18,67 @@ import { useQuery } from "@tanstack/react-query";
 import type { Service } from "@shared/schema";
 
 export default function Landing() {
-  const { data: services = [] } = useQuery<Service[]>({
-    queryKey: ["/api/services"],
-    retry: false,
-  });
+  const services = [
+    {
+      id: "1",
+      name: "Чистка лица",
+      description:
+          "Глубокое очищение пор, удаление комедонов, увлажнение и питание кожи",
+      duration: 90,
+      price: 2500,
+      image:
+          "https://avatars.mds.yandex.net/get-ydo/1649611/2a0000017e587fa3205493a66e8257986d6a/diploma",
+    },
+    {
+      id: "2",
+      name: "Пилинги",
+      description:
+          "Химические и механические пилинги для обновления и омоложения кожи",
+      duration: 60,
+      price: 3500,
+      image: "https://sklad-zdorovo.ru/images/goods/28042.jpg",
+    },
+    {
+      id: "3",
+      name: "Массаж лица",
+      description:
+          "Антивозрастной массаж для улучшения тонуса и эластичности кожи",
+      duration: 45,
+      price: 2000,
+      image:
+          "https://avatars.mds.yandex.net/get-ydo/11397567/2a0000018c58d8082ffddcffe50251a8d09e/diploma",
+    },
+    {
+      id: "4",
+      name: "Электропорация",
+      description:
+          "Безинъекционное введение питательных коктейлей для омоложения кожи",
+      duration: 60,
+      price: 4500,
+      image:
+          "https://avatars.mds.yandex.net/i?id=73483229f77b7dde293e86dc46a3935f_l-10176094-images-thumbs&n=13",
+    },
+    {
+      id: "5",
+      name: "Ботокс",
+      description:
+          "Инъекции ботулинотерапии для разглаживания мимических морщин",
+      duration: 30,
+      price: 8000,
+      image:
+          "https://slkclinic.com/wp-content/uploads/2022/10/botox-2048x1367.jpg",
+    },
+    {
+      id: "6",
+      name: "Дермапен",
+      description:
+          "Микронидлинг для стимуляции регенерации и улучшения качества кожи",
+      duration: 60,
+      price: 3800,
+      image:
+          "https://avatars.mds.yandex.net/i?id=da71f25830d54256b62b21372cf9c58d_l-5233229-images-thumbs&n=13",
+    },
+  ];
 
   const scrollToBooking = () => {
     document.getElementById("booking")?.scrollIntoView({ behavior: "smooth" });
