@@ -50,13 +50,13 @@ export default function Landing() {
     },
     {
       id: "4",
-      name: "Электропорация",
+      name: "Микротоковая терапия",
       description:
-          "Безинъекционное введение питательных коктейлей для омоложения кожи",
-      duration: 60,
-      price: 4500,
+          "Cлабые импульсные токи для омоложения кожи, улучшения лимфодренажа и коррекции овала лица",
+      duration: 45,
+      price: 3500,
       image:
-          "https://avatars.mds.yandex.net/i?id=73483229f77b7dde293e86dc46a3935f_l-10176094-images-thumbs&n=13",
+          "https://s4.stc.all.kpcdn.net/russia/wp-content/uploads/2023/09/kosmetologicheskie-kliniki-Rostova-na-Donu-yunona.jpg",
     },
     {
       id: "5",
@@ -70,13 +70,13 @@ export default function Landing() {
     },
     {
       id: "6",
-      name: "Дермапен",
+      name: "Биоревитализация>",
       description:
-          "Микронидлинг для стимуляции регенерации и улучшения качества кожи",
+          "Введении гиалуроновой кислоты в кожу для глубокого увлажнения, омоложения и запуска регенеративных процессов",
       duration: 60,
       price: 3800,
       image:
-          "https://avatars.mds.yandex.net/i?id=da71f25830d54256b62b21372cf9c58d_l-5233229-images-thumbs&n=13",
+          "https://renovacio-med.ru/upload/iblock/d9e/n0v9kqviz18wjvcyci4ilemldsu2vlsl/inj-1-1568x936.jpg",
     },
   ];
 
@@ -194,7 +194,7 @@ export default function Landing() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
               <img
-                src="/api/assets/image_1755537834060.png"
+                src="/api/assets/photo_from_work.png"
                 alt="Ирина - мастер косметолог"
                 className="rounded-2xl shadow-2xl w-full h-auto"
               />
@@ -215,7 +215,7 @@ export default function Landing() {
                     <Award className="text-white h-4 w-4" />
                   </div>
                   <span className="text-gray-700">
-                    Высшее медицинское образование
+                    Медицинское образование
                   </span>
                 </div>
                 <div className="flex items-center space-x-4">
@@ -249,6 +249,74 @@ export default function Landing() {
                 </Button>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Portfolio Section */}
+      <section id="portfolio" className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="font-heading font-bold text-3xl lg:text-4xl text-deep-charcoal mb-4">
+              Фото работ и клиентов
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Результаты процедур и довольные клиенты – лучшая реклама профессионализма
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+            {/* Вставь сюда изображения до/после или фото клиентов */}
+            <img src="/api/assets/work3.jpg" alt="Работа 1"
+                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
+            <img src="/api/assets/work9.jpg" alt="Работа 2"
+                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
+            <img src="/api/assets/work2.jpg" alt="Работа 3"
+                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
+            <img src="/api/assets/work1.jpg" alt="Работа 4"
+                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
+            <img src="/api/assets/work4.jpg" alt="Работа 5"
+                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
+            <img src="/api/assets/work8.jpg" alt="Работа 6"
+                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
+            <img src="/api/assets/work6.jpg" alt="Работа 7"
+                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
+            <img src="/api/assets/work7.jpg" alt="Работа 8"
+                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
+
+            {/* Добавь больше, если нужно */}
+          </div>
+        </div>
+      </section>
+
+
+      {/* Certificates Section */}
+      <section id="certificates" className="py-20 bg-gradient-to-br from-white to-blush-pink">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="font-heading font-bold text-3xl lg:text-4xl text-deep-charcoal mb-4">
+              Сертификаты мастера
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Повышение квалификации и международные курсы, подтвержденные дипломами и сертификатами
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+            {/* Вставь сюда изображения сертификатов */}
+            <img src="/api/assets/cert1.jpg" alt="Сертификат 1"
+                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
+            <img src="/api/assets/cert2.jpg" alt="Сертификат 2"
+                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
+            <img src="/api/assets/cert3.jpg" alt="Сертификат 3"
+                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
+            <img src="/api/assets/cert4.jpg" alt="Сертификат 4"
+                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
+            <img src="/api/assets/cert5.jpg" alt="Сертификат 5"
+                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
+            <img src="/api/assets/cert6.jpg" alt="Сертификат 6"
+                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
+            <img src="/api/assets/cert7.jpg" alt="Сертификат 7"
+                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
+            {/* Добавь больше, если нужно */}
           </div>
         </div>
       </section>
