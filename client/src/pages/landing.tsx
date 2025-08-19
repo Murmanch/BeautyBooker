@@ -1,5 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import Lightbox from "yet-another-react-lightbox";
+import "yet-another-react-lightbox/styles.css";
+import { useState } from "react";
 import {
   Star,
   Phone,
@@ -25,7 +28,7 @@ export default function Landing() {
       description:
           "Глубокое очищение пор, удаление комедонов, увлажнение и питание кожи",
       duration: 90,
-      price: 2500,
+      price: 3500,
       image:
           "https://avatars.mds.yandex.net/get-ydo/1649611/2a0000017e587fa3205493a66e8257986d6a/diploma",
     },
@@ -74,7 +77,7 @@ export default function Landing() {
       description:
           "Введении гиалуроновой кислоты в кожу для глубокого увлажнения, омоложения и запуска регенеративных процессов",
       duration: 60,
-      price: 3800,
+      price: 6000-12000,
       image:
           "https://renovacio-med.ru/upload/iblock/d9e/n0v9kqviz18wjvcyci4ilemldsu2vlsl/inj-1-1568x936.jpg",
     },
