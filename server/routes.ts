@@ -375,9 +375,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (user?.isAdmin) {
         if (req.query.date) {
           const raw = String(req.query.date);
-          // Parse YYYY-MM-DD as local date start to avoid timezone shifting to next/prev day
-          const date = /^\d{4}-\d{2}-\d{2}$/.test(raw) ? new Date(`${raw}T00:00:00`) : new Date(raw);
-          appointments = await storage.getAppointmentsByDate(date);
+          if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+            const [y, m, d] = raw.split('-').map(Number);
+            const start = new Date(Date.UTC(y, (m as number) - 1, d, 0, 0, 0, 0));
+            const end = new Date(Date.UTC(y, (m as number) - 1, d, 23, 59, 59, 999));
+            appointments = await storage.getAppointmentsByDateRange(start, end);
+          } else {
+            const date = new Date(raw);
+            appointments = await storage.getAppointmentsByDate(date);
+          }
         } else {
           appointments = await storage.getAppointments();
         }
