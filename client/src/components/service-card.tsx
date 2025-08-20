@@ -8,6 +8,7 @@ interface Service {
   description: string;
   duration: number;
   price: number;
+  imageUrl?: string;
   image?: string;
 }
 
@@ -20,9 +21,9 @@ export default function ServiceCard({ service, onBook }: ServiceCardProps) {
   return (
     <Card className="bg-warm-gray hover:shadow-2xl hover:scale-[1.03] transition-transform duration-300 group">
       <CardContent className="p-6">
-        {service.image && (
+        {(service.imageUrl || service.image) && (
           <img 
-            src={service.image} 
+            src={service.imageUrl || service.image!} 
             alt={service.name} 
             className="w-full h-48 object-cover rounded-xl mb-4 transition-transform duration-300 group-hover:scale-105 group-hover:shadow-lg"
           />

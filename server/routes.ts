@@ -74,23 +74,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
         name: "Чистка лица",
         description: "Глубокое очищение пор, удаление комедонов, увлажнение и питание кожи",
         duration: 90,
-        price: 2500,
+        price: 3500,
         isActive: true,
-      });
+        imageUrl: "https://avatars.mds.yandex.net/get-ydo/1649611/2a0000017e587fa3205493a66e8257986d6a/diploma",
+      } as any);
       await storage.createService({
-        name: "Пилинг",
-        description: "Обновление кожи с помощью химических и механических методов",
+        name: "Пилинги",
+        description: "Химические и механические пилинги для обновления и омоложения кожи",
         duration: 60,
         price: 3500,
         isActive: true,
-      });
+        imageUrl: "https://sklad-zdorovo.ru/images/goods/28042.jpg",
+      } as any);
       await storage.createService({
         name: "Массаж лица",
-        description: "Антивозрастной массаж для улучшения тонуса кожи",
+        description: "Антивозрастной массаж для улучшения тонуса и эластичности кожи",
         duration: 45,
         price: 2000,
         isActive: true,
-      });
+        imageUrl: "https://avatars.mds.yandex.net/get-ydo/11397567/2a0000018c58d8082ffddcffe50251a8d09e/diploma",
+      } as any);
+      await storage.createService({
+        name: "Микротоковая терапия",
+        description: "Слабые импульсные токи для омоложения кожи, улучшения лимфодренажа и коррекции овала лица",
+        duration: 45,
+        price: 3500,
+        isActive: true,
+        imageUrl: "https://s4.stc.all.kpcdn.net/russia/wp-content/uploads/2023/09/kosmetologicheskie-kliniki-Rostova-na-Donu-yunona.jpg",
+      } as any);
+      await storage.createService({
+        name: "Ботокс",
+        description: "Инъекции ботулинотерапии для разглаживания мимических морщин",
+        duration: 30,
+        price: 8000,
+        isActive: true,
+        imageUrl: "https://slkclinic.com/wp-content/uploads/2022/10/botox-2048x1367.jpg",
+      } as any);
+      await storage.createService({
+        name: "Биоревитализация",
+        description: "Введение гиалуроновой кислоты в кожу для глубокого увлажнения и омоложения",
+        duration: 60,
+        price: 10000,
+        isActive: true,
+        imageUrl: "https://renovacio-med.ru/upload/iblock/d9e/n0v9kqviz18wjvcyci4ilemldsu2vlsl/inj-1-1568x936.jpg",
+      } as any);
     }
 
     const existingSchedules = await storage.getSchedules();
@@ -331,18 +358,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Schemas for incoming appointment requests (coercing date strings)
+  const createAppointmentRequestSchema = z.object({
+    serviceId: z.string(),
+    appointmentDate: z.coerce.date(),
+    startTime: z.string(),
+    endTime: z.string(),
+    status: z.string().optional(),
+    notes: z.string().optional(),
+    email: z.string().email().optional(),
+    phone: z.string().optional(),
+  });
+
+  const updateAppointmentByTokenSchema = z.object({
+    appointmentDate: z.coerce.date().optional(),
+    startTime: z.string().optional(),
+    endTime: z.string().optional(),
+    notes: z.string().optional(),
+    status: z.string().optional(),
+  });
+
   // Create appointment (authenticated or anonymous)
   app.post('/api/appointments', express.json(), async (req: any, res) => {
     try {
       const user = req.user;
 
-      // Basic validation of required fields
-      const body = req.body || {};
-      const base = insertAppointmentSchema.partial().parse(body);
-      const requiredFields = [base.serviceId, base.appointmentDate, base.startTime, base.endTime];
-      if (requiredFields.some((v) => !v)) {
-        return res.status(400).json({ message: "Missing required fields" });
-      }
+      const base = createAppointmentRequestSchema.parse(req.body || {});
 
       // If not authenticated, require phone for WhatsApp
       if (!user && !base.phone) {
@@ -357,10 +398,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       const appointmentData = {
-        serviceId: base.serviceId!,
-        appointmentDate: new Date(base.appointmentDate as any),
-        startTime: base.startTime!,
-        endTime: base.endTime!,
+        serviceId: base.serviceId,
+        appointmentDate: base.appointmentDate,
+        startTime: base.startTime,
+        endTime: base.endTime,
         status: base.status || "scheduled",
         notes: base.notes,
         userId: user?.id,
@@ -412,11 +453,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put('/api/appointments/manage/:token', express.json(), async (req, res) => {
     try {
       const token = req.params.token;
-      const body = req.body || {};
-      // Allow updating date/time and notes/status
-      const allowed = insertAppointmentSchema.partial().parse(body);
+      const allowed = updateAppointmentByTokenSchema.parse(req.body || {});
       const update: any = {};
-      if (allowed.appointmentDate) update.appointmentDate = new Date(allowed.appointmentDate as any);
+      if (allowed.appointmentDate) update.appointmentDate = allowed.appointmentDate;
       if (allowed.startTime) update.startTime = allowed.startTime;
       if (allowed.endTime) update.endTime = allowed.endTime;
       if (allowed.notes !== undefined) update.notes = allowed.notes;

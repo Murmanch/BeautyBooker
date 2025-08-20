@@ -45,6 +45,7 @@ export const services = pgTable("services", {
   description: text("description"),
   duration: integer("duration").notNull(), // in minutes
   price: integer("price").notNull(), // in rubles
+  imageUrl: varchar("image_url"),
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
 });
