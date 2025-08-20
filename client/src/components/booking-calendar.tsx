@@ -27,7 +27,13 @@ export default function BookingCalendar({ services }: BookingCalendarProps) {
   const [customerPhone, setCustomerPhone] = useState("");
   const [manageLink, setManageLink] = useState<string | null>(null);
 
-  const dateStr = selectedDate ? selectedDate.toISOString().split('T')[0] : undefined;
+  const formatLocalYMD = (d: Date) => {
+    const y = d.getFullYear();
+    const m = (d.getMonth() + 1).toString().padStart(2, '0');
+    const day = d.getDate().toString().padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
+  const dateStr = selectedDate ? formatLocalYMD(selectedDate) : undefined;
 
   const { data: availableSlots } = useQuery<string[]>({
     queryKey: [
@@ -58,7 +64,7 @@ export default function BookingCalendar({ services }: BookingCalendarProps) {
 
       const res = await apiRequest("POST", "/api/appointments", {
         serviceId: selectedService,
-        appointmentDate: selectedDate.toISOString(),
+        appointmentDate: dateStr,
         startTime: selectedTime,
         endTime: `${endTime.getHours().toString().padStart(2, '0')}:${endTime.getMinutes().toString().padStart(2, '0')}`,
         status: "scheduled",

@@ -51,9 +51,10 @@ export default function Admin() {
   const [lunchStart, setLunchStart] = useState("13:00");
   const [lunchEnd, setLunchEnd] = useState("14:00");
 
+  const toYMD = (v: string) => v; // value already in YYYY-MM-DD from <input type="date">
   const { data: todayAppointments, isLoading: appointmentsLoading } = useQuery<AppointmentWithDetails[]>({
     queryKey: [
-      selectedDate ? `/api/appointments?date=${selectedDate}` : "/api/appointments"
+      selectedDate ? `/api/appointments?date=${toYMD(selectedDate)}` : "/api/appointments"
     ],
     retry: false,
   });
