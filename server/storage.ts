@@ -39,6 +39,7 @@ export interface IStorage {
   getAppointments(): Promise<AppointmentWithDetails[]>;
   getAppointmentsByUser(userId: string): Promise<AppointmentWithDetails[]>;
   getAppointmentsByDate(date: Date): Promise<AppointmentWithDetails[]>;
+  getAppointmentsByYmd(ymd: string): Promise<AppointmentWithDetails[]>;
   getAppointmentsByDateRange(startDate: Date, endDate: Date): Promise<AppointmentWithDetails[]>;
   createAppointment(appointment: InsertAppointment): Promise<Appointment>;
   updateAppointment(id: string, appointment: Partial<InsertAppointment>): Promise<Appointment>;
@@ -229,6 +230,32 @@ export class DatabaseStorage implements IStorage {
           lte(appointments.appointmentDate, endOfDay)
         )
       )
+      .orderBy(appointments.startTime);
+  }
+
+  async getAppointmentsByYmd(ymd: string): Promise<AppointmentWithDetails[]> {
+    // Compare by date part only at the database level to avoid timezone shifts
+    return await db
+      .select({
+        id: appointments.id,
+        userId: appointments.userId,
+        serviceId: appointments.serviceId,
+        appointmentDate: appointments.appointmentDate,
+        startTime: appointments.startTime,
+        endTime: appointments.endTime,
+        status: appointments.status,
+        notes: appointments.notes,
+        email: appointments.email,
+        phone: appointments.phone,
+        createdAt: appointments.createdAt,
+        updatedAt: appointments.updatedAt,
+        user: users,
+        service: services,
+      })
+      .from(appointments)
+      .leftJoin(users, eq(appointments.userId, users.id))
+      .innerJoin(services, eq(appointments.serviceId, services.id))
+      .where(sql`date(${appointments.appointmentDate}) = ${ymd}::date`)
       .orderBy(appointments.startTime);
   }
 

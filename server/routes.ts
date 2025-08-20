@@ -376,10 +376,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (req.query.date) {
           const raw = String(req.query.date);
           if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
-            const [y, m, d] = raw.split('-').map(Number);
-            const localStart = new Date(y, (m as number) - 1, d, 0, 0, 0, 0);
-            const localEnd = new Date(y, (m as number) - 1, d, 23, 59, 59, 999);
-            appointments = await storage.getAppointmentsByDateRange(localStart, localEnd);
+            appointments = await storage.getAppointmentsByYmd(raw);
           } else {
             const date = new Date(raw);
             appointments = await storage.getAppointmentsByDate(date);
