@@ -376,7 +376,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (req.query.date) {
           const raw = String(req.query.date);
           if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
-            appointments = await storage.getAppointmentsByYmd(raw);
+            const [y, m, d] = raw.split('-').map(Number);
+            const start = new Date(y, (m as number) - 1, d, 0, 0, 0, 0);
+            const end = new Date(y, (m as number) - 1, d, 23, 59, 59, 999);
+            appointments = await storage.getAppointmentsByDateRange(start, end);
           } else {
             const date = new Date(raw);
             appointments = await storage.getAppointmentsByDate(date);
@@ -398,7 +401,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Schemas for incoming appointment requests (coercing date strings)
   const createAppointmentRequestSchema = z.object({
     serviceId: z.string(),
-    appointmentDate: z.coerce.date(),
+    appointmentDate: z.union([z.string(), z.date()]),
     startTime: z.string(),
     endTime: z.string(),
     status: z.string().optional(),
@@ -434,9 +437,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return digits;
       };
 
+      // Normalize appointmentDate to LOCAL midnight if provided as YYYY-MM-DD
+      let normalizedDate: Date;
+      if (typeof base.appointmentDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(base.appointmentDate)) {
+        const [y, m, d] = base.appointmentDate.split('-').map(Number);
+        normalizedDate = new Date(y, (m as number) - 1, d, 0, 0, 0, 0);
+      } else {
+        normalizedDate = new Date(base.appointmentDate as any);
+      }
+
       const appointmentData = {
         serviceId: base.serviceId,
-        appointmentDate: base.appointmentDate,
+        appointmentDate: normalizedDate,
         startTime: base.startTime,
         endTime: base.endTime,
         status: base.status || "scheduled",
