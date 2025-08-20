@@ -163,7 +163,7 @@ export class DatabaseStorage implements IStorage {
         service: services,
       })
       .from(appointments)
-      .innerJoin(users, eq(appointments.userId, users.id))
+      .leftJoin(users, eq(appointments.userId, users.id))
       .innerJoin(services, eq(appointments.serviceId, services.id))
       .orderBy(desc(appointments.appointmentDate));
   }
@@ -213,7 +213,7 @@ export class DatabaseStorage implements IStorage {
         service: services,
       })
       .from(appointments)
-      .innerJoin(users, eq(appointments.userId, users.id))
+      .leftJoin(users, eq(appointments.userId, users.id))
       .innerJoin(services, eq(appointments.serviceId, services.id))
       .where(
         and(
@@ -241,7 +241,7 @@ export class DatabaseStorage implements IStorage {
         service: services,
       })
       .from(appointments)
-      .innerJoin(users, eq(appointments.userId, users.id))
+      .leftJoin(users, eq(appointments.userId, users.id))
       .innerJoin(services, eq(appointments.serviceId, services.id))
       .where(
         and(

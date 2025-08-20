@@ -52,7 +52,9 @@ export default function Admin() {
   const [lunchEnd, setLunchEnd] = useState("14:00");
 
   const { data: todayAppointments, isLoading: appointmentsLoading } = useQuery<AppointmentWithDetails[]>({
-    queryKey: ["/api/appointments", { date: selectedDate }],
+    queryKey: [
+      selectedDate ? `/api/appointments?date=${selectedDate}` : "/api/appointments"
+    ],
     retry: false,
   });
 
@@ -438,6 +440,45 @@ export default function Admin() {
                 })}
               </div>
               <p className="text-xs text-gray-500 mt-3">Изменить можно в блоке "Управление расписанием" выше: выберите дни и время, затем нажмите "Сохранить расписание".</p>
+            </CardContent>
+          </Card>
+
+          {/* All Appointments */}
+          <Card className="bg-warm-gray xl:col-span-2">
+            <CardHeader>
+              <CardTitle>Все записи</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {!allAppointments || allAppointments.length === 0 ? (
+                <div className="text-center py-8">
+                  <Calendar className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500">Пока нет записей</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {allAppointments
+                    .slice()
+                    .sort((a, b) => new Date(a.appointmentDate).getTime() - new Date(b.appointmentDate).getTime())
+                    .map((appointment) => (
+                      <div key={appointment.id} className="p-4 border rounded-lg bg-white/70 flex items-center justify-between">
+                        <div>
+                          <div className="font-medium text-deep-charcoal">
+                            {new Date(appointment.appointmentDate).toLocaleDateString('ru-RU')} {appointment.startTime}
+                          </div>
+                          <div className="text-sm text-gray-600">{appointment.service?.name}</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm text-gray-600">
+                            {appointment.user?.firstName || appointment.user?.email || 'Гость'}
+                          </div>
+                          <Badge variant={appointment.status === 'scheduled' ? 'default' : 'secondary'}>
+                            {appointment.status}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
