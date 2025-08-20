@@ -79,18 +79,18 @@ export function serveStatic(app: Express) {
 
   // Cache-busting redirect to avoid serving a previously cached index.html after redeploys.
   // Redirects only for non-asset, non-API GET requests without ?v= param.
-  const BUILD_ID = process.env.BUILD_ID || process.env.KOYEB_GIT_COMMIT || process.env.KOYEB_APP_REVISION || nanoid();
-  app.use((req: any, res, next) => {
-    if (req.method === 'GET' && !req.path.startsWith('/api')) {
-      const hasExt = path.extname(req.path).length > 0;
-      const hasVersion = typeof req.query?.v !== 'undefined';
-      if (!hasExt && !hasVersion) {
-        const sep = req.url.includes('?') ? '&' : '?';
-        return res.redirect(302, req.url + sep + 'v=' + BUILD_ID);
-      }
-    }
-    next();
-  });
+  // const BUILD_ID = process.env.BUILD_ID || process.env.KOYEB_GIT_COMMIT || process.env.KOYEB_APP_REVISION || nanoid();
+  // app.use((req: any, res, next) => {
+  //   if (req.method === 'GET' && !req.path.startsWith('/api')) {
+  //     const hasExt = path.extname(req.path).length > 0;
+  //     const hasVersion = typeof req.query?.v !== 'undefined';
+  //     if (!hasExt && !hasVersion) {
+  //       const sep = req.url.includes('?') ? '&' : '?';
+  //       return res.redirect(302, req.url + sep + 'v=' + BUILD_ID);
+  //     }
+  //   }
+  //   next();
+  // });
 
   app.use(express.static(distPath, {
     setHeaders: (res, filePath) => {
