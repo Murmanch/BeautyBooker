@@ -182,7 +182,7 @@ export default function Admin() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <h1 className="font-heading font-bold text-xl text-rose-gold">Елена Красота - Админ</h1>
+              <h1 className="font-heading font-bold text-xl text-rose-gold">Ирина Админ</h1>
             </div>
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
@@ -399,6 +399,45 @@ export default function Admin() {
                   {saveScheduleMutation.isPending ? "Сохраняется..." : "Сохранить расписание"}
                 </Button>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Current Schedules Overview */}
+          <Card className="bg-warm-gray">
+            <CardHeader>
+              <CardTitle>Текущее расписание по дням недели</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[0,1,2,3,4,5,6].map((dow) => {
+                  const s = schedules?.find(sc => sc.dayOfWeek === dow);
+                  const name = dayNames[dow];
+                  const active = s?.isActive;
+                  return (
+                    <div key={dow} className="p-3 border rounded-lg bg-white/70">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-medium text-deep-charcoal">{name}</span>
+                        <Badge variant={active ? "default" : "secondary"}>
+                          {active ? "Активен" : "Не активен"}
+                        </Badge>
+                      </div>
+                      {active ? (
+                        <div className="text-sm text-gray-700">
+                          <div>Работа: {s?.startTime} — {s?.endTime}</div>
+                          {s?.lunchStart && s?.lunchEnd ? (
+                            <div>Обед: {s?.lunchStart} — {s?.lunchEnd}</div>
+                          ) : (
+                            <div>Обед: не указан</div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="text-sm text-gray-500">Нет рабочего времени</div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="text-xs text-gray-500 mt-3">Изменить можно в блоке "Управление расписанием" выше: выберите дни и время, затем нажмите "Сохранить расписание".</p>
             </CardContent>
           </Card>
         </div>

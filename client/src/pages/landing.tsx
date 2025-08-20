@@ -24,67 +24,7 @@ import 'aos/dist/aos.css';
 import React from "react";
 
 export default function Landing() {
-  const services = [
-    {
-      id: "1",
-      name: "Чистка лица",
-      description:
-          "Глубокое очищение пор, удаление комедонов, увлажнение и питание кожи",
-      duration: 90,
-      price: 3500,
-      image:
-          "https://avatars.mds.yandex.net/get-ydo/1649611/2a0000017e587fa3205493a66e8257986d6a/diploma",
-    },
-    {
-      id: "2",
-      name: "Пилинги",
-      description:
-          "Химические и механические пилинги для обновления и омоложения кожи",
-      duration: 60,
-      price: 3500,
-      image: "https://sklad-zdorovo.ru/images/goods/28042.jpg",
-    },
-    {
-      id: "3",
-      name: "Массаж лица",
-      description:
-          "Антивозрастной массаж для улучшения тонуса и эластичности кожи",
-      duration: 45,
-      price: 2000,
-      image:
-          "https://avatars.mds.yandex.net/get-ydo/11397567/2a0000018c58d8082ffddcffe50251a8d09e/diploma",
-    },
-    {
-      id: "4",
-      name: "Микротоковая терапия",
-      description:
-          "Cлабые импульсные токи для омоложения кожи, улучшения лимфодренажа и коррекции овала лица",
-      duration: 45,
-      price: 3500,
-      image:
-          "https://s4.stc.all.kpcdn.net/russia/wp-content/uploads/2023/09/kosmetologicheskie-kliniki-Rostova-na-Donu-yunona.jpg",
-    },
-    {
-      id: "5",
-      name: "Ботокс",
-      description:
-          "Инъекции ботулинотерапии для разглаживания мимических морщин",
-      duration: 30,
-      price: 8000,
-      image:
-          "https://slkclinic.com/wp-content/uploads/2022/10/botox-2048x1367.jpg",
-    },
-    {
-      id: "6",
-      name: "Биоревитализация>",
-      description:
-          "Введении гиалуроновой кислоты в кожу для глубокого увлажнения, омоложения и запуска регенеративных процессов",
-      duration: 60,
-      price: 6000-12000,
-      image:
-          "https://renovacio-med.ru/upload/iblock/d9e/n0v9kqviz18wjvcyci4ilemldsu2vlsl/inj-1-1568x936.jpg",
-    },
-  ];
+  const { data: services } = useQuery<Service[]>({ queryKey: ["/api/services"], retry: false });
 
   const portfolioSlides = [
     { src: "/api/assets/work3.jpg" },
@@ -182,7 +122,7 @@ export default function Landing() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {services.map((service) => (
+            {(services || []).map((service) => (
               <ServiceCard
                 key={service.id}
                 service={service as any}
@@ -210,7 +150,7 @@ export default function Landing() {
             </p>
           </div>
 
-          <BookingCalendar services={services} />
+          <BookingCalendar services={services || []} />
         </div>
       </section>
 

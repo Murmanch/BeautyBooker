@@ -7,8 +7,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { ChevronLeft, ChevronRight, Calendar, Clock } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
-import { isUnauthorizedError } from "@/lib/authUtils";
-import { useAuth } from "@/hooks/useAuth";
 import type { Service } from "@shared/schema";
 import { Input } from "@/components/ui/input";
 
@@ -18,7 +16,6 @@ interface BookingCalendarProps {
 
 export default function BookingCalendar({ services }: BookingCalendarProps) {
   const { toast } = useToast();
-  const { isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
   
   const [selectedService, setSelectedService] = useState<string>("");
@@ -33,7 +30,11 @@ export default function BookingCalendar({ services }: BookingCalendarProps) {
   const dateStr = selectedDate ? selectedDate.toISOString().split('T')[0] : undefined;
 
   const { data: availableSlots } = useQuery<string[]>({
-    queryKey: ["/api/available-slots", { date: dateStr, serviceId: selectedService }],
+    queryKey: [
+      dateStr && selectedService
+        ? `/api/available-slots?date=${dateStr}&serviceId=${encodeURIComponent(selectedService)}`
+        : ""
+    ],
     enabled: !!selectedDate && !!selectedService,
     retry: false,
   });
