@@ -302,12 +302,16 @@ export default function Admin() {
               ) : (
                 <div className="space-y-3">
                   {todayAppointments?.map((appointment) => (
-                    <AppointmentCard 
-                      key={appointment.id} 
-                      appointment={appointment}
-                      showActions={true}
-                      isAdmin={true}
-                    />
+                    <div key={appointment.id}>
+                      <AppointmentCard 
+                        appointment={appointment}
+                        showActions={true}
+                        isAdmin={true}
+                      />
+                      <div className="px-4 pb-2 text-sm text-gray-600">
+                        Контакты: {appointment.user?.phone || appointment.phone || '-'} {appointment.user?.email || appointment.email ? ` / ${appointment.user?.email || appointment.email}` : ''}
+                      </div>
+                    </div>
                   ))}
                 </div>
               )}
@@ -470,6 +474,9 @@ export default function Admin() {
                         <div className="text-right">
                           <div className="text-sm text-gray-600">
                             {appointment.user?.firstName || appointment.user?.email || 'Гость'}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {appointment.user?.phone || appointment.phone || '-'} {appointment.user?.email || appointment.email ? ` / ${appointment.user?.email || appointment.email}` : ''}
                           </div>
                           <Badge variant={appointment.status === 'scheduled' ? 'default' : 'secondary'}>
                             {appointment.status}

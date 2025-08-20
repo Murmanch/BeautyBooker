@@ -374,7 +374,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let appointments;
       if (user?.isAdmin) {
         if (req.query.date) {
-          const date = new Date(req.query.date as string);
+          const raw = String(req.query.date);
+          // Parse YYYY-MM-DD as local date start to avoid timezone shifting to next/prev day
+          const date = /^\d{4}-\d{2}-\d{2}$/.test(raw) ? new Date(`${raw}T00:00:00`) : new Date(raw);
           appointments = await storage.getAppointmentsByDate(date);
         } else {
           appointments = await storage.getAppointments();
