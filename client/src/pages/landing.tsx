@@ -19,6 +19,9 @@ import BookingCalendar from "@/components/booking-calendar";
 import Navigation from "@/components/navigation";
 import { useQuery } from "@tanstack/react-query";
 import type { Service } from "@shared/schema";
+import AOS from 'aos';
+import 'aos/dist/aos.css';
+import React from "react";
 
 export default function Landing() {
   const services = [
@@ -105,12 +108,17 @@ export default function Landing() {
     document.getElementById("services")?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Инициализация AOS
+  React.useEffect(() => {
+    AOS.init({ once: true, duration: 800 });
+  }, []);
+
   return (
     <div className="font-body bg-warm-gray text-deep-charcoal">
       <Navigation />
 
       {/* Hero Section */}
-      <section className="pt-16 bg-gradient-to-br from-blush-pink to-white">
+      <section className="pt-16 bg-gradient-to-br from-blush-pink to-white" data-aos="fade-up">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="text-center lg:text-left">
@@ -161,7 +169,7 @@ export default function Landing() {
       </section>
 
       {/* Services Section */}
-      <section id="services" className="py-20 bg-white">
+      <section id="services" className="py-20 bg-white" data-aos="fade-up">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="font-heading font-bold text-3xl lg:text-4xl text-deep-charcoal mb-4">
@@ -189,6 +197,7 @@ export default function Landing() {
       <section
         id="booking"
         className="py-20 bg-gradient-to-br from-blush-pink to-white"
+        data-aos="fade-up"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -206,7 +215,7 @@ export default function Landing() {
       </section>
 
       {/* About Section */}
-      <section id="about" className="py-20 bg-white">
+      <section id="about" className="py-20 bg-white" data-aos="fade-up">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
@@ -253,17 +262,24 @@ export default function Landing() {
                 </div>
               </div>
               <div className="flex space-x-4">
-                <Button className="bg-rose-gold text-white px-6 py-3 rounded-lg font-semibold hover:bg-rose-gold/90 transition-all">
+                <a
+                  href="tel:+79212825626"
+                  className="bg-rose-gold text-white px-6 py-3 rounded-lg font-semibold hover:bg-rose-gold/90 transition-all flex items-center"
+                  style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }}
+                >
                   <Phone className="h-4 w-4 mr-2" />
                   Позвонить
-                </Button>
-                <Button
-                  variant="outline"
-                  className="border-2 border-rose-gold text-rose-gold px-6 py-3 rounded-lg font-semibold hover:bg-rose-gold hover:text-white transition-all"
+                </a>
+                <a
+                  href="https://wa.me/79212825626"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="border-2 border-rose-gold text-rose-gold px-6 py-3 rounded-lg font-semibold hover:bg-rose-gold hover:text-white transition-all flex items-center"
+                  style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }}
                 >
                   <MessageSquare className="h-4 w-4 mr-2" />
                   WhatsApp
-                </Button>
+                </a>
               </div>
             </div>
           </div>
@@ -271,7 +287,7 @@ export default function Landing() {
       </section>
 
       {/* Portfolio Section */}
-      <section id="portfolio" className="py-20 bg-white">
+      <section id="portfolio" className="py-20 bg-white" data-aos="fade-up">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="font-heading font-bold text-3xl lg:text-4xl text-deep-charcoal mb-4">
@@ -287,7 +303,7 @@ export default function Landing() {
                 key={i}
                 src={slide.src}
                 alt={`Работа ${i + 1}`}
-                className="rounded-xl shadow-lg w-full h-auto object-cover cursor-pointer"
+                className="rounded-xl shadow-lg w-full h-auto object-cover cursor-pointer transition-transform duration-300 hover:scale-105 hover:shadow-2xl"
                 onClick={() => {
                   setLightboxIndex(i);
                   setLightboxOpen(true);
@@ -307,7 +323,7 @@ export default function Landing() {
       />
 
       {/* Certificates Section */}
-      <section id="certificates" className="py-20 bg-gradient-to-br from-white to-blush-pink">
+      <section id="certificates" className="py-20 bg-gradient-to-br from-white to-blush-pink" data-aos="fade-up">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="font-heading font-bold text-3xl lg:text-4xl text-deep-charcoal mb-4">
@@ -320,19 +336,19 @@ export default function Landing() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
             {/* Вставь сюда изображения сертификатов */}
             <img src="/api/assets/cert1.jpg" alt="Сертификат 1"
-                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
+                 className="rounded-xl shadow-lg w-full h-auto object-cover transition-transform duration-300 hover:scale-105 hover:shadow-2xl"/>
             <img src="/api/assets/cert2.jpg" alt="Сертификат 2"
-                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
+                 className="rounded-xl shadow-lg w-full h-auto object-cover transition-transform duration-300 hover:scale-105 hover:shadow-2xl"/>
             <img src="/api/assets/cert4.jpg" alt="Сертификат 4"
-                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
+                 className="rounded-xl shadow-lg w-full h-auto object-cover transition-transform duration-300 hover:scale-105 hover:shadow-2xl"/>
             <img src="/api/assets/cert3.jpg" alt="Сертификат 3"
-                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
+                 className="rounded-xl shadow-lg w-full h-auto object-cover transition-transform duration-300 hover:scale-105 hover:shadow-2xl"/>
             <img src="/api/assets/cert5.jpg" alt="Сертификат 5"
-                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
+                 className="rounded-xl shadow-lg w-full h-auto object-cover transition-transform duration-300 hover:scale-105 hover:shadow-2xl"/>
             <img src="/api/assets/cert6.jpg" alt="Сертификат 6"
-                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
+                 className="rounded-xl shadow-lg w-full h-auto object-cover transition-transform duration-300 hover:scale-105 hover:shadow-2xl"/>
             <img src="/api/assets/cert7.jpg" alt="Сертификат 7"
-                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
+                 className="rounded-xl shadow-lg w-full h-auto object-cover transition-transform duration-300 hover:scale-105 hover:shadow-2xl"/>
             {/* Добавь больше, если нужно */}
           </div>
         </div>

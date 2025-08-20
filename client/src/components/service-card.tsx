@@ -18,13 +18,13 @@ interface ServiceCardProps {
 
 export default function ServiceCard({ service, onBook }: ServiceCardProps) {
   return (
-    <Card className="bg-warm-gray hover:shadow-lg transition-all duration-300 group">
+    <Card className="bg-warm-gray hover:shadow-2xl hover:scale-[1.03] transition-transform duration-300 group">
       <CardContent className="p-6">
         {service.image && (
           <img 
             src={service.image} 
             alt={service.name} 
-            className="w-full h-48 object-cover rounded-xl mb-4"
+            className="w-full h-48 object-cover rounded-xl mb-4 transition-transform duration-300 group-hover:scale-105 group-hover:shadow-lg"
           />
         )}
         <h3 className="font-heading font-semibold text-xl text-deep-charcoal mb-2">
