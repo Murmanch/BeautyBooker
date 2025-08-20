@@ -100,7 +100,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         duration: 45,
         price: 3500,
         isActive: true,
-        imageUrl: "https://s4.stc.all.kpcdn.net/russia/wp-content/uploads/2023/09/kosmetологicheskie-kliniki-Rostova-na-Donu-yunona.jpg",
+        imageUrl: "https://s4.stc.all.kpcdn.net/russia/wp-content/uploads/2023/09/kosmetologicheskie-kliniki-Rostova-na-Donu-yunona.jpg",
       },
       {
         name: "Ботокс",
@@ -119,6 +119,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         imageUrl: "https://renovacio-med.ru/upload/iblock/d9e/n0v9kqviz18wjvcyci4ilemldsu2vlsl/inj-1-1568x936.jpg",
       },
     ];
+
+    // Cleanup/normalize: if old singular "Пилинг" exists, migrate it
+    const singular = existingServices.find((s) => s.name === "Пилинг");
+    const plural = existingServices.find((s) => s.name === "Пилинги");
+    if (singular && !plural) {
+      await storage.updateService(singular.id, {
+        name: "Пилинги",
+        duration: 60,
+        price: 3500,
+        isActive: true,
+        imageUrl: "https://sklad-zdorovo.ru/images/goods/28042.jpg",
+      } as any);
+    } else if (singular && plural) {
+      // Deactivate duplicate singular to avoid showing both
+      await storage.updateService(singular.id, { isActive: false } as any);
+    }
 
     for (const d of desired) {
       const existing = existingServices.find(s => s.name === d.name);
