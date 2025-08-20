@@ -146,6 +146,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     }
 
+    // Форс-исправление картинки для "Микротоковая терапия"
+    const micro = (await storage.getServices()).find(s => s.name === "Микротоковая терапия");
+    if (micro && (micro as any).imageUrl !== "https://s4.stc.all.kpcdn.net/russia/wp-content/uploads/2023/09/kosmetologicheskie-kliniki-Rostova-na-Donu-yunona.jpg") {
+      await storage.updateService(micro.id, { imageUrl: "https://s4.stc.all.kpcdn.net/russia/wp-content/uploads/2023/09/kosmetologicheskie-kliniki-Rostova-na-Donu-yunona.jpg" } as any);
+    }
+
     const existingSchedules = await storage.getSchedules();
     if (existingSchedules.length === 0) {
       const workingDays = [1, 2, 3, 4, 5]; // Mon-Fri
