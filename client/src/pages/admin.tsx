@@ -309,7 +309,7 @@ export default function Admin() {
                         isAdmin={true}
                       />
                       <div className="px-4 pb-2 text-sm text-gray-600">
-                        Контакты: {appointment.user?.phone || appointment.phone || '-'} {appointment.user?.email || appointment.email ? ` / ${appointment.user?.email || appointment.email}` : ''}
+                        Контакты: {(appointment.user?.phone || appointment.phone || '-')} {(appointment.user?.email || appointment.email) ? ` / ${(appointment.user?.email || appointment.email)}` : ''}
                       </div>
                     </div>
                   ))}
@@ -476,7 +476,8 @@ export default function Admin() {
                             {appointment.user?.firstName || appointment.user?.email || 'Гость'}
                           </div>
                           <div className="text-xs text-gray-500">
-                            {appointment.user?.phone || appointment.phone || '-'} {appointment.user?.email || appointment.email ? ` / ${appointment.user?.email || appointment.email}` : ''}
+                            {(appointment.user?.phone || appointment.phone || '-')}
+                            {(appointment.user?.email || appointment.email) ? ` / ${(appointment.user?.email || appointment.email)}` : ''}
                           </div>
                           <Badge variant={appointment.status === 'scheduled' ? 'default' : 'secondary'}>
                             {appointment.status}

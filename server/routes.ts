@@ -444,7 +444,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         endTime: base.endTime,
         status: base.status || "scheduled",
         notes: base.notes,
-        userId: user?.id,
+        // Если указаны контактные данные в запросе, считаем запись анонимной даже при наличии сессии
+        userId: (base.email || base.phone) ? undefined : user?.id,
         email: base.email,
         phone: normalizePhone(base.phone),
         manageToken: user ? undefined : nanoid(32),
