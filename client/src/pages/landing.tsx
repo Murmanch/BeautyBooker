@@ -83,6 +83,20 @@ export default function Landing() {
     },
   ];
 
+  const portfolioSlides = [
+    { src: "/api/assets/work3.jpg" },
+    { src: "/api/assets/work9.jpg" },
+    { src: "/api/assets/work2.jpg" },
+    { src: "/api/assets/work1.jpg" },
+    { src: "/api/assets/work4.jpg" },
+    { src: "/api/assets/work8.jpg" },
+    { src: "/api/assets/work6.jpg" },
+    { src: "/api/assets/work7.jpg" },
+    { src: "/api/assets/work10.jpg" },
+  ];
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+
   const scrollToBooking = () => {
     document.getElementById("booking")?.scrollIntoView({ behavior: "smooth" });
   };
@@ -268,29 +282,29 @@ export default function Landing() {
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-            {/* Вставь сюда изображения до/после или фото клиентов */}
-            <img src="/api/assets/work3.jpg" alt="Работа 1"
-                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
-            <img src="/api/assets/work9.jpg" alt="Работа 2"
-                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
-            <img src="/api/assets/work2.jpg" alt="Работа 3"
-                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
-            <img src="/api/assets/work1.jpg" alt="Работа 4"
-                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
-            <img src="/api/assets/work4.jpg" alt="Работа 5"
-                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
-            <img src="/api/assets/work8.jpg" alt="Работа 6"
-                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
-            <img src="/api/assets/work6.jpg" alt="Работа 7"
-                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
-            <img src="/api/assets/work7.jpg" alt="Работа 8"
-                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
-            <img src="/api/assets/work10.jpg" alt="Работа 9"
-                 className="rounded-xl shadow-lg w-full h-auto object-cover"/>
-            {/* Добавь больше, если нужно */}
+            {portfolioSlides.map((slide, i) => (
+              <img
+                key={i}
+                src={slide.src}
+                alt={`Работа ${i + 1}`}
+                className="rounded-xl shadow-lg w-full h-auto object-cover cursor-pointer"
+                onClick={() => {
+                  setLightboxIndex(i);
+                  setLightboxOpen(true);
+                }}
+              />
+            ))}
           </div>
         </div>
       </section>
+
+      <Lightbox
+        open={lightboxOpen}
+        close={() => setLightboxOpen(false)}
+        index={lightboxIndex}
+        slides={portfolioSlides}
+        carousel={{ finite: true }}
+      />
 
       {/* Certificates Section */}
       <section id="certificates" className="py-20 bg-gradient-to-br from-white to-blush-pink">
