@@ -8,6 +8,7 @@ import Home from "@/pages/home";
 import Admin from "@/pages/admin";
 import NotFound from "@/pages/not-found";
 import Login from "@/pages/login";
+import ManageBooking from "@/pages/manage-booking";
 
 function Router() {
   return (
@@ -16,6 +17,7 @@ function Router() {
       <Route path="/home" component={Home} />
       <Route path="/admin" component={Admin} />
       <Route path="/login" component={Login} />
+      <Route path="/manage/:token" component={ManageBooking} />
       <Route component={NotFound} />
     </Switch>
   );

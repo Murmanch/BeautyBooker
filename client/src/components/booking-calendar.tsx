@@ -10,6 +10,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { useAuth } from "@/hooks/useAuth";
 import type { Service } from "@shared/schema";
+import { Input } from "@/components/ui/input";
 
 interface BookingCalendarProps {
   services: Service[];
@@ -24,6 +25,10 @@ export default function BookingCalendar({ services }: BookingCalendarProps) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string>("");
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [customerName, setCustomerName] = useState("");
+  const [customerEmail, setCustomerEmail] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [manageLink, setManageLink] = useState<string | null>(null);
 
   const dateStr = selectedDate ? selectedDate.toISOString().split('T')[0] : undefined;
 
@@ -39,9 +44,8 @@ export default function BookingCalendar({ services }: BookingCalendarProps) {
         throw new Error("Выберите услугу, дату и время");
       }
 
-      if (!isAuthenticated) {
-        window.location.href = "/login";
-        return;
+      if (!customerEmail && !customerPhone) {
+        throw new Error("Укажите телефон или email для связи");
       }
 
       const selectedServiceData = services.find(s => s.id === selectedService);
@@ -51,40 +55,39 @@ export default function BookingCalendar({ services }: BookingCalendarProps) {
       const endTime = new Date(selectedDate);
       endTime.setHours(hours, minutes + selectedServiceData.duration, 0, 0);
 
-      await apiRequest("POST", "/api/appointments", {
+      const res = await apiRequest("POST", "/api/appointments", {
         serviceId: selectedService,
         appointmentDate: selectedDate.toISOString(),
         startTime: selectedTime,
         endTime: `${endTime.getHours().toString().padStart(2, '0')}:${endTime.getMinutes().toString().padStart(2, '0')}`,
         status: "scheduled",
+        notes: customerName ? `Клиент: ${customerName}` : undefined,
+        email: customerEmail || undefined,
+        phone: customerPhone || undefined,
       });
+      const data = await res.json();
+      return data;
     },
-    onSuccess: () => {
+    onSuccess: (data: any) => {
+      const origin = window.location.origin;
+      const link = data?.manageToken ? `${origin}/manage/${data.manageToken}` : null;
+      if (link) setManageLink(link);
       toast({
         title: "Успешно!",
-        description: "Ваша запись создана",
+        description: link ? "Ссылка для управления записью создана" : "Ваша запись создана",
       });
       setSelectedService("");
       setSelectedDate(null);
       setSelectedTime("");
-      queryClient.invalidateQueries({ queryKey: ["/api/appointments"] });
+      setCustomerName("");
+      setCustomerEmail("");
+      setCustomerPhone("");
       queryClient.invalidateQueries({ queryKey: ["/api/available-slots"] });
     },
     onError: (error) => {
-      if (isUnauthorizedError(error)) {
-        toast({
-          title: "Требуется авторизация",
-          description: "Войдите в систему для записи на процедуру",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/login";
-        }, 1000);
-        return;
-      }
       toast({
         title: "Ошибка",
-        description: error.message || "Не удалось создать запись",
+        description: (error as any).message || "Не удалось создать запись",
         variant: "destructive",
       });
     },
@@ -272,6 +275,22 @@ export default function BookingCalendar({ services }: BookingCalendarProps) {
                     <strong>Стоимость:</strong> {selectedServiceData?.price.toLocaleString()} ₽
                   </p>
                 </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                  <div>
+                    <Label htmlFor="name">Имя (необязательно)</Label>
+                    <Input id="name" value={customerName} onChange={e => setCustomerName(e.target.value)} placeholder="Ваше имя" />
+                  </div>
+                  <div>
+                    <Label htmlFor="email">Email</Label>
+                    <Input id="email" value={customerEmail} onChange={e => setCustomerEmail(e.target.value)} placeholder="you@email.com" type="email" />
+                  </div>
+                  <div>
+                    <Label htmlFor="phone">Телефон</Label>
+                    <Input id="phone" value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} placeholder="+7 9XX XXX-XX-XX" />
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500 mb-4">Укажите email или телефон, чтобы получить ссылку для управления записью.</p>
                 
                 <Button 
                   onClick={() => bookingMutation.mutate()}
@@ -280,6 +299,12 @@ export default function BookingCalendar({ services }: BookingCalendarProps) {
                 >
                   {bookingMutation.isPending ? "Создается запись..." : "Подтвердить запись"}
                 </Button>
+
+                {manageLink && (
+                  <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg text-sm break-all">
+                    Ссылка для управления записью: <a className="text-rose-gold underline" href={manageLink}>{manageLink}</a>
+                  </div>
+                )}
               </div>
             )}
           </div>

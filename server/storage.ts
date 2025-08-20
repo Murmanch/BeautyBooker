@@ -44,6 +44,9 @@ export interface IStorage {
   updateAppointment(id: string, appointment: Partial<InsertAppointment>): Promise<Appointment>;
   cancelAppointment(id: string): Promise<void>;
   getAppointment(id: string): Promise<AppointmentWithDetails | undefined>;
+  getAppointmentByManageToken(token: string): Promise<AppointmentWithDetails | undefined>;
+  updateAppointmentByManageToken(token: string, appointment: Partial<InsertAppointment>): Promise<Appointment>;
+  cancelAppointmentByManageToken(token: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -291,6 +294,32 @@ export class DatabaseStorage implements IStorage {
       .innerJoin(services, eq(appointments.serviceId, services.id))
       .where(eq(appointments.id, id));
     return appointment;
+  }
+
+  async getAppointmentByManageToken(token: string): Promise<AppointmentWithDetails | undefined> {
+    const [row] = await db
+      .select()
+      .from(appointments)
+      .where(eq(appointments.manageToken, token))
+      .leftJoin(users, eq(users.id, appointments.userId))
+      .leftJoin(services, eq(services.id, appointments.serviceId)) as unknown as AppointmentWithDetails[];
+    return row;
+  }
+
+  async updateAppointmentByManageToken(token: string, appointment: Partial<InsertAppointment>): Promise<Appointment> {
+    const [updated] = await db
+      .update(appointments)
+      .set(appointment)
+      .where(eq(appointments.manageToken, token))
+      .returning();
+    return updated as Appointment;
+  }
+
+  async cancelAppointmentByManageToken(token: string): Promise<void> {
+    await db
+      .update(appointments)
+      .set({ status: "cancelled" })
+      .where(eq(appointments.manageToken, token));
   }
 }
 

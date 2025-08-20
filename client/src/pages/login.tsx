@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 
 // Load Firebase Web SDK lazily to keep bundle small
 async function ensureFirebase() {
@@ -25,58 +26,27 @@ async function ensureFirebase() {
 
 export default function Login() {
   const { toast } = useToast();
-  const [phone, setPhone] = useState("+7");
-  const [otp, setOtp] = useState("");
-  const [confirmation, setConfirmation] = useState<any>(null);
+  // email/password state
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    // prepare recaptcha container
-    const container = document.getElementById("recaptcha-container");
-    if (container) container.innerHTML = "";
-  }, []);
-
-  const startLogin = async () => {
+  // Email/Password Auth
+  const handleEmailAuth = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const { auth, RecaptchaVerifier, signInWithPhoneNumber } = await ensureFirebase();
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const verifier: any = new RecaptchaVerifier(auth, "recaptcha-container", {
-        size: "invisible",
-      });
-
-      const confirmationResult = await signInWithPhoneNumber(auth, phone, verifier);
-      setConfirmation(confirmationResult);
-      toast({ title: "Код отправлен", description: "Введите код из SMS" });
+      const { auth } = await ensureFirebase();
+      if (isRegister) {
+        await createUserWithEmailAndPassword(auth, email, password);
+        toast({ title: "Успешная регистрация", description: "Теперь войдите в аккаунт" });
+        setIsRegister(false);
+      } else {
+        await signInWithEmailAndPassword(auth, email, password);
+        window.location.href = "/home";
+      }
     } catch (e: any) {
-      console.error(e);
-      toast({ title: "Ошибка", description: e.message || "Не удалось отправить код", variant: "destructive" });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const verifyOtp = async () => {
-    if (!confirmation) return;
-    try {
-      setLoading(true);
-      const cred = await confirmation.confirm(otp);
-      const idToken = await cred.user.getIdToken();
-
-      const res = await fetch("/api/auth/phone", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ idToken }),
-      });
-
-      if (!res.ok) throw new Error(await res.text());
-
-      window.location.href = "/home";
-    } catch (e: any) {
-      console.error(e);
-      toast({ title: "Ошибка", description: e.message || "Неверный код", variant: "destructive" });
+      toast({ title: "Ошибка", description: e.message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -86,31 +56,29 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-warm-gray px-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Вход по номеру телефона</CardTitle>
+          <CardTitle>{isRegister ? 'Регистрация по email' : 'Вход по email'}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm text-gray-700">Номер телефона</label>
-            <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+7 9XX XXX-XX-XX" />
+            <label className="text-sm text-gray-700">Email</label>
+            <Input value={email} onChange={e => setEmail(e.target.value)} placeholder="you@email.com" type="email" />
           </div>
-
-          {!confirmation ? (
-            <Button className="w-full bg-rose-gold" onClick={startLogin} disabled={loading}>
-              Отправить код
-            </Button>
-          ) : (
-            <>
-              <div className="space-y-2">
-                <label className="text-sm text-gray-700">Код из SMS</label>
-                <Input value={otp} onChange={(e) => setOtp(e.target.value)} placeholder="123456" />
-              </div>
-              <Button className="w-full bg-rose-gold" onClick={verifyOtp} disabled={loading}>
-                Войти
-              </Button>
-            </>
-          )}
-
-          <div id="recaptcha-container" />
+          <div className="space-y-2">
+            <label className="text-sm text-gray-700">Пароль</label>
+            <Input value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" type="password" />
+          </div>
+          <Button className="w-full bg-rose-gold" onClick={handleEmailAuth} disabled={loading}>
+            {isRegister ? 'Зарегистрироваться' : 'Войти'}
+          </Button>
+          <div className="text-center mt-2">
+            <button
+              className="text-rose-gold underline text-sm"
+              type="button"
+              onClick={() => setIsRegister(r => !r)}
+            >
+              {isRegister ? 'Уже есть аккаунт? Войти' : 'Нет аккаунта? Зарегистрироваться'}
+            </button>
+          </div>
         </CardContent>
       </Card>
     </div>

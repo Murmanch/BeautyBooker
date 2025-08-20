@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { adminAuth } from "./firebase";
 import { z } from "zod";
 import { insertServiceSchema, insertScheduleSchema, insertAppointmentSchema } from "@shared/schema";
+import { nanoid } from "nanoid";
 import path from "path";
 import express from "express";
 import session from "express-session";
@@ -330,24 +331,98 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/appointments', isAuthenticated, async (req: any, res) => {
+  // Create appointment (authenticated or anonymous)
+  app.post('/api/appointments', express.json(), async (req: any, res) => {
     try {
       const user = req.user;
-      if (!user) return res.status(401).json({ message: "Unauthorized" });
+
+      // Basic validation of required fields
+      const body = req.body || {};
+      const base = insertAppointmentSchema.partial().parse(body);
+      const requiredFields = [base.serviceId, base.appointmentDate, base.startTime, base.endTime];
+      if (requiredFields.some((v) => !v)) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      // If not authenticated, require at least one contact method
+      if (!user && !base.email && !base.phone) {
+        return res.status(400).json({ message: "Provide email or phone for contact" });
+      }
 
       const appointmentData = {
-        ...insertAppointmentSchema.parse(req.body),
-        userId: user.id,
-      };
+        serviceId: base.serviceId!,
+        appointmentDate: new Date(base.appointmentDate as any),
+        startTime: base.startTime!,
+        endTime: base.endTime!,
+        status: base.status || "scheduled",
+        notes: base.notes,
+        userId: user?.id,
+        email: base.email,
+        phone: base.phone,
+        manageToken: user ? undefined : nanoid(32),
+      } as any;
 
       const appointment = await storage.createAppointment(appointmentData);
-      res.status(201).json(appointment);
+
+      // Return manage token (only for anonymous bookings)
+      const response = user ? appointment : { ...appointment, manageToken: appointment.manageToken };
+      res.status(201).json(response);
     } catch (error) {
       console.error("Error creating appointment:", error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid appointment data", errors: error.errors });
       }
       res.status(500).json({ message: "Failed to create appointment" });
+    }
+  });
+
+  // Anonymous management by token: get details
+  app.get('/api/appointments/manage/:token', async (req, res) => {
+    try {
+      const token = req.params.token;
+      const appt = await storage.getAppointmentByManageToken(token);
+      if (!appt) return res.status(404).json({ message: "Appointment not found" });
+      res.json(appt);
+    } catch (error) {
+      console.error("Error fetching appointment by token:", error);
+      res.status(500).json({ message: "Failed to fetch appointment" });
+    }
+  });
+
+  // Anonymous reschedule by token
+  app.put('/api/appointments/manage/:token', express.json(), async (req, res) => {
+    try {
+      const token = req.params.token;
+      const body = req.body || {};
+      // Allow updating date/time and notes/status
+      const allowed = insertAppointmentSchema.partial().parse(body);
+      const update: any = {};
+      if (allowed.appointmentDate) update.appointmentDate = new Date(allowed.appointmentDate as any);
+      if (allowed.startTime) update.startTime = allowed.startTime;
+      if (allowed.endTime) update.endTime = allowed.endTime;
+      if (allowed.notes !== undefined) update.notes = allowed.notes;
+      if (allowed.status !== undefined) update.status = allowed.status;
+
+      const updated = await storage.updateAppointmentByManageToken(token, update);
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating appointment by token:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid appointment data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to update appointment" });
+    }
+  });
+
+  // Anonymous cancel by token
+  app.delete('/api/appointments/manage/:token', async (req, res) => {
+    try {
+      const token = req.params.token;
+      await storage.cancelAppointmentByManageToken(token);
+      res.json({ message: "Appointment cancelled" });
+    } catch (error) {
+      console.error("Error cancelling appointment by token:", error);
+      res.status(500).json({ message: "Failed to cancel appointment" });
     }
   });
 

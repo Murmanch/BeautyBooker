@@ -64,13 +64,16 @@ export const schedules = pgTable("schedules", {
 // Appointments table
 export const appointments = pgTable("appointments", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").notNull().references(() => users.id),
+  userId: varchar("user_id").references(() => users.id), // теперь не notNull
   serviceId: varchar("service_id").notNull().references(() => services.id),
   appointmentDate: timestamp("appointment_date").notNull(),
   startTime: time("start_time").notNull(),
   endTime: time("end_time").notNull(),
   status: varchar("status").notNull().default("scheduled"), // scheduled, cancelled, completed
   notes: text("notes"),
+  email: varchar("email"), // для анонимных записей
+  phone: varchar("phone"), // для анонимных записей
+  manageToken: varchar("manage_token"), // токен для управления записью
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
