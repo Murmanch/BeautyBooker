@@ -69,55 +69,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Initial seed for services and schedules if database is empty
   try {
     const existingServices = await storage.getServices();
-    if (existingServices.length === 0) {
-      await storage.createService({
+    const desired = [
+      {
         name: "Чистка лица",
         description: "Глубокое очищение пор, удаление комедонов, увлажнение и питание кожи",
         duration: 90,
         price: 3500,
         isActive: true,
         imageUrl: "https://avatars.mds.yandex.net/get-ydo/1649611/2a0000017e587fa3205493a66e8257986d6a/diploma",
-      } as any);
-      await storage.createService({
+      },
+      {
         name: "Пилинги",
         description: "Химические и механические пилинги для обновления и омоложения кожи",
         duration: 60,
         price: 3500,
         isActive: true,
         imageUrl: "https://sklad-zdorovo.ru/images/goods/28042.jpg",
-      } as any);
-      await storage.createService({
+      },
+      {
         name: "Массаж лица",
         description: "Антивозрастной массаж для улучшения тонуса и эластичности кожи",
         duration: 45,
         price: 2000,
         isActive: true,
         imageUrl: "https://avatars.mds.yandex.net/get-ydo/11397567/2a0000018c58d8082ffddcffe50251a8d09e/diploma",
-      } as any);
-      await storage.createService({
+      },
+      {
         name: "Микротоковая терапия",
         description: "Слабые импульсные токи для омоложения кожи, улучшения лимфодренажа и коррекции овала лица",
         duration: 45,
         price: 3500,
         isActive: true,
-        imageUrl: "https://s4.stc.all.kpcdn.net/russia/wp-content/uploads/2023/09/kosmetologicheskie-kliniki-Rostova-na-Donu-yunona.jpg",
-      } as any);
-      await storage.createService({
+        imageUrl: "https://s4.stc.all.kpcdn.net/russia/wp-content/uploads/2023/09/kosmetологicheskie-kliniki-Rostova-na-Donu-yunona.jpg",
+      },
+      {
         name: "Ботокс",
         description: "Инъекции ботулинотерапии для разглаживания мимических морщин",
         duration: 30,
         price: 8000,
         isActive: true,
         imageUrl: "https://slkclinic.com/wp-content/uploads/2022/10/botox-2048x1367.jpg",
-      } as any);
-      await storage.createService({
+      },
+      {
         name: "Биоревитализация",
         description: "Введение гиалуроновой кислоты в кожу для глубокого увлажнения и омоложения",
         duration: 60,
         price: 10000,
         isActive: true,
         imageUrl: "https://renovacio-med.ru/upload/iblock/d9e/n0v9kqviz18wjvcyci4ilemldsu2vlsl/inj-1-1568x936.jpg",
-      } as any);
+      },
+    ];
+
+    for (const d of desired) {
+      const existing = existingServices.find(s => s.name === d.name);
+      if (!existing) {
+        await storage.createService(d as any);
+      } else if (!('imageUrl' in existing) || !(existing as any).imageUrl) {
+        // Добавить изображение для уже существующей услуги, если его нет
+        await storage.updateService(existing.id, { imageUrl: d.imageUrl } as any);
+      }
     }
 
     const existingSchedules = await storage.getSchedules();
