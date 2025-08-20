@@ -44,7 +44,13 @@ export default function Admin() {
     }
   }, [isAuthenticated, isLoading, user, toast]);
 
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const toLocalYMD = (d: Date) => {
+    const y = d.getFullYear();
+    const m = (d.getMonth() + 1).toString().padStart(2, '0');
+    const day = d.getDate().toString().padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
+  const [selectedDate, setSelectedDate] = useState(toLocalYMD(new Date()));
   const [workingDays, setWorkingDays] = useState([1, 2, 3, 4, 5]); // Mon-Fri
   const [startTime, setStartTime] = useState("09:00");
   const [endTime, setEndTime] = useState("18:00");
@@ -277,7 +283,7 @@ export default function Admin() {
           {/* Today's Schedule */}
           <Card className="bg-warm-gray">
             <CardHeader>
-              <CardTitle>Расписание на сегодня</CardTitle>
+              <CardTitle>Расписание на дату</CardTitle>
               <div className="flex items-center space-x-2">
                 <Label htmlFor="date">Дата:</Label>
                 <Input

@@ -196,12 +196,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAppointmentsByDate(date: Date): Promise<AppointmentWithDetails[]> {
-    // Treat incoming date as UTC date (start/end in UTC) to avoid timezone drift
-    const y = date.getUTCFullYear();
-    const m = date.getUTCMonth();
-    const d = date.getUTCDate();
-    const startOfDay = new Date(Date.UTC(y, m, d, 0, 0, 0, 0));
-    const endOfDay = new Date(Date.UTC(y, m, d, 23, 59, 59, 999));
+    // Treat incoming date as LOCAL date start/end
+    const y = date.getFullYear();
+    const m = date.getMonth();
+    const d = date.getDate();
+    const startOfDay = new Date(y, m, d, 0, 0, 0, 0);
+    const endOfDay = new Date(y, m, d, 23, 59, 59, 999);
 
     return await db
       .select({
