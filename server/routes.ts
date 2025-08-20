@@ -344,10 +344,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Missing required fields" });
       }
 
-      // If not authenticated, require at least one contact method
-      if (!user && !base.email && !base.phone) {
-        return res.status(400).json({ message: "Provide email or phone for contact" });
+      // If not authenticated, require phone for WhatsApp
+      if (!user && !base.phone) {
+        return res.status(400).json({ message: "Phone is required for anonymous booking" });
       }
+
+      const normalizePhone = (phone?: string) => {
+        if (!phone) return undefined as undefined | string;
+        const digits = phone.replace(/\D/g, "");
+        if (digits.startsWith("8") && digits.length === 11) return `7${digits.slice(1)}`;
+        return digits;
+      };
 
       const appointmentData = {
         serviceId: base.serviceId!,
@@ -358,11 +365,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         notes: base.notes,
         userId: user?.id,
         email: base.email,
-        phone: base.phone,
+        phone: normalizePhone(base.phone),
         manageToken: user ? undefined : nanoid(32),
       } as any;
 
       const appointment = await storage.createAppointment(appointmentData);
+
+      // Try to send WhatsApp message with manage link for anonymous booking
+      if (!user && appointment.phone && process.env.WHATSAPP_TOKEN && process.env.WHATSAPP_PHONE_NUMBER_ID) {
+        const origin = `${req.protocol}://${req.get('host')}`;
+        const link = `${origin}/manage/${appointment.manageToken}`;
+        const text = `Ваша запись создана. Управляйте ею по ссылке: ${link}`;
+        try {
+          await sendWhatsAppMessage(appointment.phone, text);
+        } catch (e) {
+          console.warn("Failed to send WhatsApp message:", (e as Error).message);
+        }
+      }
 
       // Return manage token (only for anonymous bookings)
       const response = user ? appointment : { ...appointment, manageToken: appointment.manageToken };
@@ -563,4 +582,33 @@ function minutesToTime(minutes: number): string {
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
   return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+}
+
+// Send WhatsApp message via Meta WhatsApp Cloud API
+// Requires env vars: WHATSAPP_TOKEN, WHATSAPP_PHONE_NUMBER_ID
+async function sendWhatsAppMessage(phoneE164Digits: string, text: string) {
+  const token = process.env.WHATSAPP_TOKEN;
+  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+  if (!token || !phoneNumberId) return;
+
+  const url = `https://graph.facebook.com/v19.0/${phoneNumberId}/messages`;
+  const payload = {
+    messaging_product: "whatsapp",
+    to: `+${phoneE164Digits}`,
+    type: "text",
+    text: { body: text },
+  } as const;
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`WhatsApp API error: ${res.status} ${body}`);
+  }
 }
