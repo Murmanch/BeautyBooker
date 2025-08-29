@@ -335,7 +335,7 @@ export default function Landing() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="md:col-span-2">
               <h3 className="font-heading font-bold text-2xl text-rose-gold mb-4">
-                Ирина Красота
+                Косметология Мурманск
               </h3>
               <p className="text-gray-300 mb-6 max-w-md">
                 Профессиональная косметология для вашей красоты и здоровья.
@@ -384,7 +384,7 @@ export default function Landing() {
 
           <div className="border-t border-gray-700 mt-12 pt-8 text-center">
             <p className="text-gray-400">
-              &copy; 2025 Ирина Красота. Все права защищены.
+              &copy; 2025 Косметология Мурманск. Все права защищены.
             </p>
           </div>
         </div>
