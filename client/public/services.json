@@ -5,7 +5,7 @@
     "description": "Глубокое очищение пор, удаление комедонов, увлажнение и питание кожи",
     "duration": 90,
     "price": 3500,
-    "image": "/assets/work3.jpg",
+    "image": "https://avatars.mds.yandex.net/get-ydo/1649611/2a0000017e587fa3205493a66e8257986d6a/diploma",
     "isActive": true
   },
   {
@@ -14,7 +14,7 @@
     "description": "Химические и механические пилинги для обновления и омоложения кожи",
     "duration": 60,
     "price": 3500,
-    "image": "/assets/work4.jpg",
+    "image": "https://sklad-zdorovo.ru/images/goods/28042.jpg",
     "isActive": true
   },
   {
@@ -23,7 +23,7 @@
     "description": "Антивозрастной массаж для улучшения тонуса и эластичности кожи",
     "duration": 45,
     "price": 2000,
-    "image": "/assets/work6.jpg",
+    "image": "https://avatars.mds.yandex.net/get-ydo/11397567/2a0000018c58d8082ffddcffe50251a8d09e/diploma",
     "isActive": true
   },
   {
@@ -32,7 +32,7 @@
     "description": "Импульсные микротоки для улучшения лимфодренажа, тонуса и овала лица",
     "duration": 45,
     "price": 3500,
-    "image": "/assets/work8.jpg",
+    "image": "https://s4.stc.all.kpcdn.net/russia/wp-content/uploads/2023/09/kosmetologicheskie-kliniki-Rostova-na-Donu-yunona.jpg",
     "isActive": true
   },
   {
@@ -41,7 +41,7 @@
     "description": "Инъекции ботулинотерапии для разглаживания мимических морщин",
     "duration": 30,
     "price": 8000,
-    "image": "/assets/work9.jpg",
+    "image": "https://slkclinic.com/wp-content/uploads/2022/10/botox-2048x1367.jpg",
     "isActive": true
   },
   {
@@ -50,7 +50,7 @@
     "description": "Введение гиалуроновой кислоты для глубокого увлажнения и сияния кожи",
     "duration": 60,
     "price": 10000,
-    "image": "/assets/work10.jpg",
+    "image": "https://renovacio-med.ru/upload/iblock/d9e/n0v9kqviz18wjvcyci4ilemldsu2vlsl/inj-1-1568x936.jpg",
     "isActive": true
   }
 ]

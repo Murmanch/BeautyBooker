@@ -288,7 +288,7 @@ export default function Landing() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
             {/* Вставь сюда изображения сертификатов */}
-            <img src="/assets/cert1.jpg" alt="Сертификат 1"
+            <img src="/assets/cert7.jpg" alt="Сертификат 1"
                  className="rounded-xl shadow-lg w-full h-auto object-cover transition-transform duration-300 hover:scale-105 hover:shadow-2xl"/>
             <img src="/assets/cert2.jpg" alt="Сертификат 2"
                  className="rounded-xl shadow-lg w-full h-auto object-cover transition-transform duration-300 hover:scale-105 hover:shadow-2xl"/>
@@ -300,8 +300,22 @@ export default function Landing() {
                  className="rounded-xl shadow-lg w-full h-auto object-cover transition-transform duration-300 hover:scale-105 hover:shadow-2xl"/>
             <img src="/assets/cert6.jpg" alt="Сертификат 6"
                  className="rounded-xl shadow-lg w-full h-auto object-cover transition-transform duration-300 hover:scale-105 hover:shadow-2xl"/>
-            <img src="/assets/cert7.jpg" alt="Сертификат 7"
+            <img src="/assets/cert99.jpg" alt="Сертификат 7"
                  className="rounded-xl shadow-lg w-full h-auto object-cover transition-transform duration-300 hover:scale-105 hover:shadow-2xl"/>
+            <img src="/assets/cert8.jpg" alt="Сертификат 7"
+                 className="rounded-xl shadow-lg w-full h-auto object-cover transition-transform duration-300 hover:scale-105 hover:shadow-2xl"/>
+            <img src="/assets/cert9.jpg" alt="Сертификат 7"
+                 className="rounded-xl shadow-lg w-full h-auto object-cover transition-transform duration-300 hover:scale-105 hover:shadow-2xl"/>
+            <img src="/assets/cert10.jpg" alt="Сертификат 7"
+                 className="rounded-xl shadow-lg w-full h-auto object-cover transition-transform duration-300 hover:scale-105 hover:shadow-2xl"/>
+            <img src="/assets/cert11.jpg" alt="Сертификат 7"
+                 className="rounded-xl shadow-lg w-full h-auto object-cover transition-transform duration-300 hover:scale-105 hover:shadow-2xl"/>
+            <img src="/assets/cert12.jpg" alt="Сертификат 7"
+                 className="rounded-xl shadow-lg w-full h-auto object-cover transition-transform duration-300 hover:scale-105 hover:shadow-2xl"/>
+            <img src="/assets/cert13.jpg" alt="Сертификат 7"
+                 className="rounded-xl shadow-lg w-full h-auto object-cover transition-transform duration-300 hover:scale-105 hover:shadow-2xl"/>
+            <img src="/assets/cert1.jpg" alt="Сертификат 7"
+                 className="rounded-xl shadow-lg w-full h-auto object-cover transition-transform duration-300 hover:scale-105 hover:shadow-2xl"/>                                                                                     
             {/* Добавь больше, если нужно */}
           </div>
         </div>
