@@ -24,7 +24,20 @@ import 'aos/dist/aos.css';
 import React from "react";
 
 export default function Landing() {
-  const { data: services } = useQuery<Service[]>({ queryKey: ["/api/services"], retry: false });
+  const { data: services } = useQuery<Service[]>({
+    queryKey: ["/api/services"],
+    retry: false,
+    queryFn: async () => {
+      try {
+        const res = await fetch("/api/services", { credentials: "include" });
+        if (res.ok) return res.json();
+        throw new Error(String(res.status));
+      } catch {
+        const res = await fetch("/services.json");
+        return res.json();
+      }
+    },
+  });
 
   const portfolioSlides = [
     { src: "/assets/work3.jpg" },

@@ -1,0 +1,30 @@
+[
+  {
+    "id": "svc-cleaning",
+    "name": "Чистка лица",
+    "description": "Глубокое очищение пор, удаление комедонов, увлажнение и питание кожи",
+    "duration": 90,
+    "price": 3500,
+    "image": "/assets/work3.jpg",
+    "isActive": true
+  },
+  {
+    "id": "svc-peelings",
+    "name": "Пилинги",
+    "description": "Химические и механические пилинги для обновления и омоложения кожи",
+    "duration": 60,
+    "price": 3500,
+    "image": "/assets/work4.jpg",
+    "isActive": true
+  },
+  {
+    "id": "svc-massage",
+    "name": "Массаж лица",
+    "description": "Антивозрастной массаж для улучшения тонуса и эластичности кожи",
+    "duration": 45,
+    "price": 2000,
+    "image": "/assets/work6.jpg",
+    "isActive": true
+  }
+]
+
