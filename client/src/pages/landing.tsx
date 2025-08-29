@@ -29,9 +29,17 @@ export default function Landing() {
     retry: false,
     queryFn: async () => {
       try {
-        const res = await fetch("/api/services", { credentials: "include" });
-        if (res.ok) return res.json();
-        throw new Error(String(res.status));
+        const apiRes = await fetch("/api/services", { credentials: "include" });
+        if (apiRes.ok) {
+          const apiData = await apiRes.json();
+          if (Array.isArray(apiData) && apiData.length > 0) {
+            return apiData;
+          }
+          // Пустая БД — используем локальный файл как запасной источник
+          const localRes = await fetch("/services.json");
+          return await localRes.json();
+        }
+        throw new Error(String(apiRes.status));
       } catch {
         const res = await fetch("/services.json");
         return res.json();
