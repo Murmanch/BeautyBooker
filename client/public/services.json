@@ -25,6 +25,33 @@
     "price": 2000,
     "image": "/assets/work6.jpg",
     "isActive": true
+  },
+  {
+    "id": "svc-microcurrent",
+    "name": "Микротоковая терапия",
+    "description": "Импульсные микротоки для улучшения лимфодренажа, тонуса и овала лица",
+    "duration": 45,
+    "price": 3500,
+    "image": "/assets/work8.jpg",
+    "isActive": true
+  },
+  {
+    "id": "svc-botox",
+    "name": "Ботокс",
+    "description": "Инъекции ботулинотерапии для разглаживания мимических морщин",
+    "duration": 30,
+    "price": 8000,
+    "image": "/assets/work9.jpg",
+    "isActive": true
+  },
+  {
+    "id": "svc-biorevital",
+    "name": "Биоревитализация",
+    "description": "Введение гиалуроновой кислоты для глубокого увлажнения и сияния кожи",
+    "duration": 60,
+    "price": 10000,
+    "image": "/assets/work10.jpg",
+    "isActive": true
   }
 ]
 
