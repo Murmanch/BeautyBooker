@@ -45,7 +45,6 @@ export const services = pgTable("services", {
   description: text("description"),
   duration: integer("duration").notNull(), // in minutes
   price: integer("price").notNull(), // in rubles
-  imageUrl: varchar("image_url"),
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -65,16 +64,20 @@ export const schedules = pgTable("schedules", {
 // Appointments table
 export const appointments = pgTable("appointments", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").references(() => users.id), // теперь не notNull
+  // Для анонимных записей допускаем отсутствие userId
+  userId: varchar("user_id").references(() => users.id),
   serviceId: varchar("service_id").notNull().references(() => services.id),
   appointmentDate: timestamp("appointment_date").notNull(),
   startTime: time("start_time").notNull(),
   endTime: time("end_time").notNull(),
-  status: varchar("status").notNull().default("scheduled"), // scheduled, cancelled, completed
+  // Значение по умолчанию оставляем "scheduled" для обратной совместимости
+  status: varchar("status").notNull().default("scheduled"), // scheduled, cancelled, completed | русские эквиваленты позже
   notes: text("notes"),
-  email: varchar("email"), // для анонимных записей
-  phone: varchar("phone"), // для анонимных записей
-  manageToken: varchar("manage_token"), // токен для управления записью
+  // Контакты для анонимных записей
+  email: varchar("email"),
+  phone: varchar("phone"),
+  // Токен для анонимного управления записью
+  manageToken: varchar("manage_token").unique(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

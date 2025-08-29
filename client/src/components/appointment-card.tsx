@@ -95,11 +95,7 @@ export default function AppointmentCard({ appointment, showActions = false, isAd
               {isAdmin && (
                 <div className="flex items-center">
                   <User className="h-4 w-4 mr-2" />
-                  <span>
-                    {(appointment.user?.firstName || '') + ' ' + (appointment.user?.lastName || '')}
-                    {appointment.user?.phone || appointment.phone ? ` • ${appointment.user?.phone || appointment.phone}` : ''}
-                    {appointment.user?.email || appointment.email ? ` • ${appointment.user?.email || appointment.email}` : ''}
-                  </span>
+                  <span>{appointment.user.firstName} {appointment.user.lastName}</span>
                 </div>
               )}
               <div className="flex items-center text-rose-gold font-medium">

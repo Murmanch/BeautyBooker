@@ -2,13 +2,15 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { ChevronLeft, ChevronRight, Calendar, Clock } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
+import { isUnauthorizedError } from "@/lib/authUtils";
+import { useAuth } from "@/hooks/useAuth";
 import type { Service } from "@shared/schema";
-import { Input } from "@/components/ui/input";
 
 interface BookingCalendarProps {
   services: Service[];
@@ -16,31 +18,20 @@ interface BookingCalendarProps {
 
 export default function BookingCalendar({ services }: BookingCalendarProps) {
   const { toast } = useToast();
+  const { isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
   
   const [selectedService, setSelectedService] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string>("");
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [customerName, setCustomerName] = useState("");
-  const [customerEmail, setCustomerEmail] = useState("");
-  const [customerPhone, setCustomerPhone] = useState("");
-  const [manageLink, setManageLink] = useState<string | null>(null);
+  const [phone, setPhone] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
 
-  const formatLocalYMD = (d: Date) => {
-    const y = d.getFullYear();
-    const m = (d.getMonth() + 1).toString().padStart(2, '0');
-    const day = d.getDate().toString().padStart(2, '0');
-    return `${y}-${m}-${day}`;
-  };
-  const dateStr = selectedDate ? formatLocalYMD(selectedDate) : undefined;
+  const dateStr = selectedDate ? selectedDate.toISOString().split('T')[0] : undefined;
 
   const { data: availableSlots } = useQuery<string[]>({
-    queryKey: [
-      dateStr && selectedService
-        ? `/api/available-slots?date=${dateStr}&serviceId=${encodeURIComponent(selectedService)}`
-        : ""
-    ],
+    queryKey: ["/api/available-slots", { date: dateStr, serviceId: selectedService }],
     enabled: !!selectedDate && !!selectedService,
     retry: false,
   });
@@ -51,8 +42,9 @@ export default function BookingCalendar({ services }: BookingCalendarProps) {
         throw new Error("Выберите услугу, дату и время");
       }
 
-      if (!customerEmail && !customerPhone) {
-        throw new Error("Укажите телефон или email для связи");
+      // Для анонимной записи требуется телефон
+      if (!isAuthenticated && !phone.trim()) {
+        throw new Error("Укажите номер телефона для подтверждения записи в WhatsApp");
       }
 
       const selectedServiceData = services.find(s => s.id === selectedService);
@@ -62,39 +54,33 @@ export default function BookingCalendar({ services }: BookingCalendarProps) {
       const endTime = new Date(selectedDate);
       endTime.setHours(hours, minutes + selectedServiceData.duration, 0, 0);
 
-      const res = await apiRequest("POST", "/api/appointments", {
+      await apiRequest("POST", "/api/appointments", {
         serviceId: selectedService,
-        appointmentDate: dateStr,
+        appointmentDate: selectedDate.toISOString(),
         startTime: selectedTime,
         endTime: `${endTime.getHours().toString().padStart(2, '0')}:${endTime.getMinutes().toString().padStart(2, '0')}`,
         status: "scheduled",
-        notes: customerName ? `Клиент: ${customerName}` : undefined,
-        email: customerEmail || undefined,
-        phone: customerPhone || undefined,
+        ...(isAuthenticated ? {} : { phone: phone.trim().replace(/\s+/g, ''), email: email.trim() || undefined }),
       });
-      const data = await res.json();
-      return data;
     },
-    onSuccess: (data: any) => {
-      const origin = window.location.origin;
-      const link = data?.manageToken ? `${origin}/manage/${data.manageToken}` : null;
-      if (link) setManageLink(link);
+    onSuccess: () => {
       toast({
         title: "Успешно!",
-        description: link ? "Ссылка для управления записью создана" : "Ваша запись создана",
+        description: isAuthenticated ? "Ваша запись создана" : "Ваша запись создана. Ссылка для управления придёт в WhatsApp",
       });
       setSelectedService("");
       setSelectedDate(null);
       setSelectedTime("");
-      setCustomerName("");
-      setCustomerEmail("");
-      setCustomerPhone("");
+      setPhone("");
+      setEmail("");
+      queryClient.invalidateQueries({ queryKey: ["/api/appointments"] });
       queryClient.invalidateQueries({ queryKey: ["/api/available-slots"] });
     },
     onError: (error) => {
+      // Для анонимной записи авторизация не требуется
       toast({
         title: "Ошибка",
-        description: (error as any).message || "Не удалось создать запись",
+        description: error.message || "Не удалось создать запись",
         variant: "destructive",
       });
     },
@@ -283,21 +269,30 @@ export default function BookingCalendar({ services }: BookingCalendarProps) {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-                  <div>
-                    <Label htmlFor="name">Имя (необязательно)</Label>
-                    <Input id="name" value={customerName} onChange={e => setCustomerName(e.target.value)} placeholder="Ваше имя" />
+                {!isAuthenticated && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <Label htmlFor="phone">Телефон для WhatsApp</Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        placeholder="+7 999 123-45-67"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="email">Email (необязательно)</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="you@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" value={customerEmail} onChange={e => setCustomerEmail(e.target.value)} placeholder="you@email.com" type="email" />
-                  </div>
-                  <div>
-                    <Label htmlFor="phone">Телефон</Label>
-                    <Input id="phone" value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} placeholder="+7 9XX XXX-XX-XX" />
-                  </div>
-                </div>
-                <p className="text-xs text-gray-500 mb-4">Укажите email или телефон, чтобы получить ссылку для управления записью.</p>
+                )}
                 
                 <Button 
                   onClick={() => bookingMutation.mutate()}
@@ -306,12 +301,6 @@ export default function BookingCalendar({ services }: BookingCalendarProps) {
                 >
                   {bookingMutation.isPending ? "Создается запись..." : "Подтвердить запись"}
                 </Button>
-
-                {manageLink && (
-                  <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg text-sm break-all">
-                    Ссылка для управления записью: <a className="text-rose-gold underline" href={manageLink}>{manageLink}</a>
-                  </div>
-                )}
               </div>
             )}
           </div>

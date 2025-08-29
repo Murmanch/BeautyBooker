@@ -69,87 +69,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Initial seed for services and schedules if database is empty
   try {
     const existingServices = await storage.getServices();
-    const desired = [
-      {
+    if (existingServices.length === 0) {
+      await storage.createService({
         name: "Чистка лица",
         description: "Глубокое очищение пор, удаление комедонов, увлажнение и питание кожи",
         duration: 90,
-        price: 3500,
+        price: 2500,
         isActive: true,
-        imageUrl: "https://avatars.mds.yandex.net/get-ydo/1649611/2a0000017e587fa3205493a66e8257986d6a/diploma",
-      },
-      {
-        name: "Пилинги",
-        description: "Химические и механические пилинги для обновления и омоложения кожи",
+      });
+      await storage.createService({
+        name: "Пилинг",
+        description: "Обновление кожи с помощью химических и механических методов",
         duration: 60,
         price: 3500,
         isActive: true,
-        imageUrl: "https://sklad-zdorovo.ru/images/goods/28042.jpg",
-      },
-      {
+      });
+      await storage.createService({
         name: "Массаж лица",
-        description: "Антивозрастной массаж для улучшения тонуса и эластичности кожи",
+        description: "Антивозрастной массаж для улучшения тонуса кожи",
         duration: 45,
         price: 2000,
         isActive: true,
-        imageUrl: "https://avatars.mds.yandex.net/get-ydo/11397567/2a0000018c58d8082ffddcffe50251a8d09e/diploma",
-      },
-      {
-        name: "Микротоковая терапия",
-        description: "Слабые импульсные токи для омоложения кожи, улучшения лимфодренажа и коррекции овала лица",
-        duration: 45,
-        price: 3500,
-        isActive: true,
-        imageUrl: "https://s4.stc.all.kpcdn.net/russia/wp-content/uploads/2023/09/kosmetologicheskie-kliniki-Rostova-na-Donu-yunona.jpg",
-      },
-      {
-        name: "Ботокс",
-        description: "Инъекции ботулинотерапии для разглаживания мимических морщин",
-        duration: 30,
-        price: 8000,
-        isActive: true,
-        imageUrl: "https://slkclinic.com/wp-content/uploads/2022/10/botox-2048x1367.jpg",
-      },
-      {
-        name: "Биоревитализация",
-        description: "Введение гиалуроновой кислоты в кожу для глубокого увлажнения и омоложения",
-        duration: 60,
-        price: 10000,
-        isActive: true,
-        imageUrl: "https://renovacio-med.ru/upload/iblock/d9e/n0v9kqviz18wjvcyci4ilemldsu2vlsl/inj-1-1568x936.jpg",
-      },
-    ];
-
-    // Cleanup/normalize: if old singular "Пилинг" exists, migrate it
-    const singular = existingServices.find((s) => s.name === "Пилинг");
-    const plural = existingServices.find((s) => s.name === "Пилинги");
-    if (singular && !plural) {
-      await storage.updateService(singular.id, {
-        name: "Пилинги",
-        duration: 60,
-        price: 3500,
-        isActive: true,
-        imageUrl: "https://sklad-zdorovo.ru/images/goods/28042.jpg",
-      } as any);
-    } else if (singular && plural) {
-      // Deactivate duplicate singular to avoid showing both
-      await storage.updateService(singular.id, { isActive: false } as any);
-    }
-
-    for (const d of desired) {
-      const existing = existingServices.find(s => s.name === d.name);
-      if (!existing) {
-        await storage.createService(d as any);
-      } else if (!('imageUrl' in existing) || !(existing as any).imageUrl) {
-        // Добавить изображение для уже существующей услуги, если его нет
-        await storage.updateService(existing.id, { imageUrl: d.imageUrl } as any);
-      }
-    }
-
-    // Форс-исправление картинки для "Микротоковая терапия"
-    const micro = (await storage.getServices()).find(s => s.name === "Микротоковая терапия");
-    if (micro && (micro as any).imageUrl !== "https://s4.stc.all.kpcdn.net/russia/wp-content/uploads/2023/09/kosmetologicheskie-kliniki-Rostova-na-Donu-yunona.jpg") {
-      await storage.updateService(micro.id, { imageUrl: "https://s4.stc.all.kpcdn.net/russia/wp-content/uploads/2023/09/kosmetologicheskie-kliniki-Rostova-na-Donu-yunona.jpg" } as any);
+      });
     }
 
     const existingSchedules = await storage.getSchedules();
@@ -398,46 +339,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Schemas for incoming appointment requests (coercing date strings)
-  const createAppointmentRequestSchema = z.object({
-    serviceId: z.string(),
-    appointmentDate: z.union([z.string(), z.date()]),
-    startTime: z.string(),
-    endTime: z.string(),
-    status: z.string().optional(),
-    notes: z.string().optional(),
-    email: z.string().email().optional(),
-    phone: z.string().optional(),
-  });
-
-  const updateAppointmentByTokenSchema = z.object({
-    appointmentDate: z.coerce.date().optional(),
-    startTime: z.string().optional(),
-    endTime: z.string().optional(),
-    notes: z.string().optional(),
-    status: z.string().optional(),
-  });
-
   // Create appointment (authenticated or anonymous)
   app.post('/api/appointments', express.json(), async (req: any, res) => {
     try {
-      const user = req.user;
+      const user = (req as any).user;
+      const body = req.body || {};
 
-      const base = createAppointmentRequestSchema.parse(req.body || {});
-
-      // If not authenticated, require phone for WhatsApp
-      if (!user && !base.phone) {
-        return res.status(400).json({ message: "Phone is required for anonymous booking" });
-      }
-
-      const normalizePhone = (phone?: string) => {
-        if (!phone) return undefined as undefined | string;
-        const digits = phone.replace(/\D/g, "");
-        if (digits.startsWith("8") && digits.length === 11) return `7${digits.slice(1)}`;
-        return digits;
+      // Базовая валидация формата входных данных
+      const base = {
+        serviceId: String(body.serviceId || ''),
+        appointmentDate: body.appointmentDate,
+        startTime: String(body.startTime || ''),
+        endTime: String(body.endTime || ''),
+        notes: body.notes ? String(body.notes) : undefined,
+        email: body.email ? String(body.email) : undefined,
+        phone: body.phone ? String(body.phone) : undefined,
       };
 
-      // Normalize appointmentDate to LOCAL midnight if provided as YYYY-MM-DD
+      if (!base.serviceId || !base.appointmentDate || !base.startTime || !base.endTime) {
+        return res.status(400).json({ message: "Требуются serviceId, appointmentDate, startTime, endTime" });
+      }
+
+      // Для анонимной записи обязателен телефон (для WhatsApp)
+      if (!user && !base.phone) {
+        return res.status(400).json({ message: "Для анонимной записи укажите телефон" });
+      }
+
+      // Нормализуем дату: если формат YYYY-MM-DD — приводим к локальной полуночи
       let normalizedDate: Date;
       if (typeof base.appointmentDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(base.appointmentDate)) {
         const [y, m, d] = base.appointmentDate.split('-').map(Number);
@@ -446,27 +374,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
         normalizedDate = new Date(base.appointmentDate as any);
       }
 
-      const appointmentData = {
+      // Нормализуем телефон в E.164 без плюса (для Cloud API)
+      const normalizePhone = (phone?: string) => {
+        if (!phone) return undefined as string | undefined;
+        const digits = phone.replace(/\D/g, "");
+        if (digits.startsWith("8") && digits.length === 11) return `7${digits.slice(1)}`;
+        return digits;
+      };
+
+      const appointmentData: any = {
         serviceId: base.serviceId,
         appointmentDate: normalizedDate,
         startTime: base.startTime,
         endTime: base.endTime,
-        status: base.status || "scheduled",
+        status: 'scheduled',
         notes: base.notes,
-        // Если указаны контактные данные в запросе, считаем запись анонимной даже при наличии сессии
-        userId: (base.email || base.phone) ? undefined : user?.id,
+        userId: base.email || base.phone ? undefined : user?.id,
         email: base.email,
         phone: normalizePhone(base.phone),
         manageToken: user ? undefined : nanoid(32),
-      } as any;
+      };
+
+      // Валидируем через zod частично (разрешаем пропуски новых полей)
+      // insertAppointmentSchema включает новые поля, используем partial для гибкости
+      insertAppointmentSchema.partial().parse(appointmentData);
 
       const appointment = await storage.createAppointment(appointmentData);
 
-      // Try to send WhatsApp message with manage link for anonymous booking
+      // Отправляем WhatsApp при анонимной записи
       if (!user && appointment.phone && process.env.WHATSAPP_TOKEN && process.env.WHATSAPP_PHONE_NUMBER_ID) {
         const origin = `${req.protocol}://${req.get('host')}`;
-        const link = `${origin}/manage/${appointment.manageToken}`;
-        const text = `Ваша запись создана. Управляйте ею по ссылке: ${link}`;
+        const manageLink = `${origin}/manage/${appointment.manageToken}`;
+        const confirmApi = `${origin}/api/appointments/manage/${appointment.manageToken}/status?value=подтверждено`;
+        const cancelApi = `${origin}/api/appointments/manage/${appointment.manageToken}/status?value=отменено`;
+        const dateStr = new Date(appointment.appointmentDate).toLocaleDateString('ru-RU');
+        const text = [
+          `Ваша запись создана`,
+          `Дата: ${dateStr}`,
+          `Время: ${appointment.startTime} - ${appointment.endTime}`,
+          `Управление записью: ${manageLink}`,
+          `Подтвердить: ${confirmApi}`,
+          `Отменить: ${cancelApi}`,
+        ].join('\n');
         try {
           await sendWhatsAppMessage(appointment.phone, text);
         } catch (e) {
@@ -474,7 +423,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      // Return manage token (only for anonymous bookings)
+      // Для анонимной записи возвращаем manageToken
       const response = user ? appointment : { ...appointment, manageToken: appointment.manageToken };
       res.status(201).json(response);
     } catch (error) {
@@ -483,54 +432,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid appointment data", errors: error.errors });
       }
       res.status(500).json({ message: "Failed to create appointment" });
-    }
-  });
-
-  // Anonymous management by token: get details
-  app.get('/api/appointments/manage/:token', async (req, res) => {
-    try {
-      const token = req.params.token;
-      const appt = await storage.getAppointmentByManageToken(token);
-      if (!appt) return res.status(404).json({ message: "Appointment not found" });
-      res.json(appt);
-    } catch (error) {
-      console.error("Error fetching appointment by token:", error);
-      res.status(500).json({ message: "Failed to fetch appointment" });
-    }
-  });
-
-  // Anonymous reschedule by token
-  app.put('/api/appointments/manage/:token', express.json(), async (req, res) => {
-    try {
-      const token = req.params.token;
-      const allowed = updateAppointmentByTokenSchema.parse(req.body || {});
-      const update: any = {};
-      if (allowed.appointmentDate) update.appointmentDate = allowed.appointmentDate;
-      if (allowed.startTime) update.startTime = allowed.startTime;
-      if (allowed.endTime) update.endTime = allowed.endTime;
-      if (allowed.notes !== undefined) update.notes = allowed.notes;
-      if (allowed.status !== undefined) update.status = allowed.status;
-
-      const updated = await storage.updateAppointmentByManageToken(token, update);
-      res.json(updated);
-    } catch (error) {
-      console.error("Error updating appointment by token:", error);
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid appointment data", errors: error.errors });
-      }
-      res.status(500).json({ message: "Failed to update appointment" });
-    }
-  });
-
-  // Anonymous cancel by token
-  app.delete('/api/appointments/manage/:token', async (req, res) => {
-    try {
-      const token = req.params.token;
-      await storage.cancelAppointmentByManageToken(token);
-      res.json({ message: "Appointment cancelled" });
-    } catch (error) {
-      console.error("Error cancelling appointment by token:", error);
-      res.status(500).json({ message: "Failed to cancel appointment" });
     }
   });
 
@@ -579,6 +480,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error cancelling appointment:", error);
       res.status(500).json({ message: "Failed to cancel appointment" });
+    }
+  });
+
+  // Anonymous management by token
+  app.get('/api/appointments/manage/:token', async (req, res) => {
+    try {
+      const token = req.params.token;
+      const appt = await storage.getAppointmentByManageToken(token);
+      if (!appt) return res.status(404).json({ message: "Appointment not found" });
+      res.json(appt);
+    } catch (error) {
+      console.error("Error fetching appointment by token:", error);
+      res.status(500).json({ message: "Failed to fetch appointment" });
+    }
+  });
+
+  app.delete('/api/appointments/manage/:token', async (req, res) => {
+    try {
+      const token = req.params.token;
+      await storage.cancelAppointmentByManageToken(token);
+      res.json({ message: "Appointment cancelled" });
+    } catch (error) {
+      console.error("Error cancelling appointment by token:", error);
+      res.status(500).json({ message: "Failed to cancel appointment" });
+    }
+  });
+
+  app.post('/api/appointments/manage/:token/status', async (req, res) => {
+    try {
+      const token = req.params.token;
+      const raw = (req.query.value as string | undefined) || (req as any).body?.value;
+      if (!raw) return res.status(400).json({ message: "value is required" });
+
+      const normalized = normalizeStatus(raw);
+      if (!normalized) return res.status(400).json({ message: "invalid status value" });
+
+      const updated = await storage.updateAppointmentByManageToken(token, { status: normalized } as any);
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating appointment status by token:", error);
+      res.status(500).json({ message: "Failed to update status" });
     }
   });
 
@@ -674,7 +616,6 @@ function minutesToTime(minutes: number): string {
 }
 
 // Send WhatsApp message via Meta WhatsApp Cloud API
-// Requires env vars: WHATSAPP_TOKEN, WHATSAPP_PHONE_NUMBER_ID
 async function sendWhatsAppMessage(phoneE164Digits: string, text: string) {
   const token = process.env.WHATSAPP_TOKEN;
   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
@@ -699,5 +640,26 @@ async function sendWhatsAppMessage(phoneE164Digits: string, text: string) {
   if (!res.ok) {
     const body = await res.text();
     throw new Error(`WhatsApp API error: ${res.status} ${body}`);
+  }
+}
+
+// Map Russian and English statuses to stored values
+function normalizeStatus(input: string): "scheduled" | "cancelled" | "completed" | undefined {
+  const value = input.trim().toLowerCase();
+  switch (value) {
+    case 'запланировано':
+    case 'подтверждено':
+    case 'scheduled':
+    case 'confirmed':
+    case 'pending':
+      return 'scheduled';
+    case 'отменено':
+    case 'cancelled':
+      return 'cancelled';
+    case 'завершено':
+    case 'completed':
+      return 'completed';
+    default:
+      return undefined;
   }
 }

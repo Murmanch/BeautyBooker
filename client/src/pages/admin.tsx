@@ -317,7 +317,7 @@ export default function Admin() {
                       />
                       <div className="px-4 pb-2 text-sm text-gray-600">
                         Контакты: {(appointment.user?.phone || appointment.phone || '-')} {(appointment.user?.email || appointment.email) ? ` / ${(appointment.user?.email || appointment.email)}` : ''}
-                      </div>
+                        image.png             </div>
                     </div>
                   ))}
                 </div>

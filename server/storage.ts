@@ -14,7 +14,7 @@ import {
   type AppointmentWithDetails,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, gte, lte, desc, sql } from "drizzle-orm";
+import { eq, and, gte, lte, desc } from "drizzle-orm";
 
 export interface IStorage {
   // User operations (mandatory for Replit Auth)
@@ -39,7 +39,6 @@ export interface IStorage {
   getAppointments(): Promise<AppointmentWithDetails[]>;
   getAppointmentsByUser(userId: string): Promise<AppointmentWithDetails[]>;
   getAppointmentsByDate(date: Date): Promise<AppointmentWithDetails[]>;
-  getAppointmentsByYmd(ymd: string): Promise<AppointmentWithDetails[]>;
   getAppointmentsByDateRange(startDate: Date, endDate: Date): Promise<AppointmentWithDetails[]>;
   createAppointment(appointment: InsertAppointment): Promise<Appointment>;
   updateAppointment(id: string, appointment: Partial<InsertAppointment>): Promise<Appointment>;
@@ -160,6 +159,7 @@ export class DatabaseStorage implements IStorage {
         notes: appointments.notes,
         email: appointments.email,
         phone: appointments.phone,
+        manageToken: appointments.manageToken,
         createdAt: appointments.createdAt,
         updatedAt: appointments.updatedAt,
         user: users,
@@ -184,6 +184,7 @@ export class DatabaseStorage implements IStorage {
         notes: appointments.notes,
         email: appointments.email,
         phone: appointments.phone,
+        manageToken: appointments.manageToken,
         createdAt: appointments.createdAt,
         updatedAt: appointments.updatedAt,
         user: users,
@@ -216,6 +217,7 @@ export class DatabaseStorage implements IStorage {
         notes: appointments.notes,
         email: appointments.email,
         phone: appointments.phone,
+        manageToken: appointments.manageToken,
         createdAt: appointments.createdAt,
         updatedAt: appointments.updatedAt,
         user: users,
@@ -233,32 +235,6 @@ export class DatabaseStorage implements IStorage {
       .orderBy(appointments.startTime);
   }
 
-  async getAppointmentsByYmd(ymd: string): Promise<AppointmentWithDetails[]> {
-    // Compare by date part only at the database level to avoid timezone shifts
-    return await db
-      .select({
-        id: appointments.id,
-        userId: appointments.userId,
-        serviceId: appointments.serviceId,
-        appointmentDate: appointments.appointmentDate,
-        startTime: appointments.startTime,
-        endTime: appointments.endTime,
-        status: appointments.status,
-        notes: appointments.notes,
-        email: appointments.email,
-        phone: appointments.phone,
-        createdAt: appointments.createdAt,
-        updatedAt: appointments.updatedAt,
-        user: users,
-        service: services,
-      })
-      .from(appointments)
-      .leftJoin(users, eq(appointments.userId, users.id))
-      .innerJoin(services, eq(appointments.serviceId, services.id))
-      .where(sql`date(${appointments.appointmentDate}) = ${ymd}::date`)
-      .orderBy(appointments.startTime);
-  }
-
   async getAppointmentsByDateRange(startDate: Date, endDate: Date): Promise<AppointmentWithDetails[]> {
     return await db
       .select({
@@ -272,6 +248,7 @@ export class DatabaseStorage implements IStorage {
         notes: appointments.notes,
         email: appointments.email,
         phone: appointments.phone,
+        manageToken: appointments.manageToken,
         createdAt: appointments.createdAt,
         updatedAt: appointments.updatedAt,
         user: users,
@@ -323,13 +300,14 @@ export class DatabaseStorage implements IStorage {
         notes: appointments.notes,
         email: appointments.email,
         phone: appointments.phone,
+        manageToken: appointments.manageToken,
         createdAt: appointments.createdAt,
         updatedAt: appointments.updatedAt,
         user: users,
         service: services,
       })
       .from(appointments)
-      .innerJoin(users, eq(appointments.userId, users.id))
+      .leftJoin(users, eq(appointments.userId, users.id))
       .innerJoin(services, eq(appointments.serviceId, services.id))
       .where(eq(appointments.id, id));
     return appointment;
@@ -337,18 +315,34 @@ export class DatabaseStorage implements IStorage {
 
   async getAppointmentByManageToken(token: string): Promise<AppointmentWithDetails | undefined> {
     const [row] = await db
-      .select()
+      .select({
+        id: appointments.id,
+        userId: appointments.userId,
+        serviceId: appointments.serviceId,
+        appointmentDate: appointments.appointmentDate,
+        startTime: appointments.startTime,
+        endTime: appointments.endTime,
+        status: appointments.status,
+        notes: appointments.notes,
+        email: appointments.email,
+        phone: appointments.phone,
+        manageToken: appointments.manageToken,
+        createdAt: appointments.createdAt,
+        updatedAt: appointments.updatedAt,
+        user: users,
+        service: services,
+      })
       .from(appointments)
-      .where(eq(appointments.manageToken, token))
-      .leftJoin(users, eq(users.id, appointments.userId))
-      .leftJoin(services, eq(services.id, appointments.serviceId)) as unknown as AppointmentWithDetails[];
+      .leftJoin(users, eq(appointments.userId, users.id))
+      .innerJoin(services, eq(appointments.serviceId, services.id))
+      .where(eq(appointments.manageToken, token));
     return row;
   }
 
   async updateAppointmentByManageToken(token: string, appointment: Partial<InsertAppointment>): Promise<Appointment> {
     const [updated] = await db
       .update(appointments)
-      .set(appointment)
+      .set({ ...appointment, updatedAt: new Date() })
       .where(eq(appointments.manageToken, token))
       .returning();
     return updated as Appointment;
@@ -357,7 +351,7 @@ export class DatabaseStorage implements IStorage {
   async cancelAppointmentByManageToken(token: string): Promise<void> {
     await db
       .update(appointments)
-      .set({ status: "cancelled" })
+      .set({ status: "cancelled", updatedAt: new Date() })
       .where(eq(appointments.manageToken, token));
   }
 }

@@ -27,15 +27,15 @@ export default function Landing() {
   const { data: services } = useQuery<Service[]>({ queryKey: ["/api/services"], retry: false });
 
   const portfolioSlides = [
-    { src: "/api/assets/work3.jpg" },
-    { src: "/api/assets/work9.jpg" },
-    { src: "/api/assets/work2.jpg" },
-    { src: "/api/assets/work1.jpg" },
-    { src: "/api/assets/work4.jpg" },
-    { src: "/api/assets/work8.jpg" },
-    { src: "/api/assets/work6.jpg" },
-    { src: "/api/assets/work7.jpg" },
-    { src: "/api/assets/work10.jpg" },
+    { src: "/assets/work3.jpg" },
+    { src: "/assets/work9.jpg" },
+    { src: "/assets/work2.jpg" },
+    { src: "/assets/work1.jpg" },
+    { src: "/assets/work4.jpg" },
+    { src: "/assets/work8.jpg" },
+    { src: "/assets/work6.jpg" },
+    { src: "/assets/work7.jpg" },
+    { src: "/assets/work10.jpg" },
   ];
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
@@ -160,7 +160,7 @@ export default function Landing() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
               <img
-                src="/api/assets/photo_from_work.png"
+                src="/assets/photo_from_work.png"
                 alt="Ирина - мастер косметолог"
                 className="rounded-2xl shadow-2xl w-full h-auto"
               />
@@ -275,19 +275,19 @@ export default function Landing() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
             {/* Вставь сюда изображения сертификатов */}
-            <img src="/api/assets/cert1.jpg" alt="Сертификат 1"
+            <img src="/assets/cert1.jpg" alt="Сертификат 1"
                  className="rounded-xl shadow-lg w-full h-auto object-cover transition-transform duration-300 hover:scale-105 hover:shadow-2xl"/>
-            <img src="/api/assets/cert2.jpg" alt="Сертификат 2"
+            <img src="/assets/cert2.jpg" alt="Сертификат 2"
                  className="rounded-xl shadow-lg w-full h-auto object-cover transition-transform duration-300 hover:scale-105 hover:shadow-2xl"/>
-            <img src="/api/assets/cert4.jpg" alt="Сертификат 4"
+            <img src="/assets/cert4.jpg" alt="Сертификат 4"
                  className="rounded-xl shadow-lg w-full h-auto object-cover transition-transform duration-300 hover:scale-105 hover:shadow-2xl"/>
-            <img src="/api/assets/cert3.jpg" alt="Сертификат 3"
+            <img src="/assets/cert3.jpg" alt="Сертификат 3"
                  className="rounded-xl shadow-lg w-full h-auto object-cover transition-transform duration-300 hover:scale-105 hover:shadow-2xl"/>
-            <img src="/api/assets/cert5.jpg" alt="Сертификат 5"
+            <img src="/assets/cert5.jpg" alt="Сертификат 5"
                  className="rounded-xl shadow-lg w-full h-auto object-cover transition-transform duration-300 hover:scale-105 hover:shadow-2xl"/>
-            <img src="/api/assets/cert6.jpg" alt="Сертификат 6"
+            <img src="/assets/cert6.jpg" alt="Сертификат 6"
                  className="rounded-xl shadow-lg w-full h-auto object-cover transition-transform duration-300 hover:scale-105 hover:shadow-2xl"/>
-            <img src="/api/assets/cert7.jpg" alt="Сертификат 7"
+            <img src="/assets/cert7.jpg" alt="Сертификат 7"
                  className="rounded-xl shadow-lg w-full h-auto object-cover transition-transform duration-300 hover:scale-105 hover:shadow-2xl"/>
             {/* Добавь больше, если нужно */}
           </div>
